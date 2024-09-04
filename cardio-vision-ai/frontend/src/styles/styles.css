@@ -20,3 +20,18 @@
     text-align: center;
     margin-top: 20px;
 }
+
+.custom-accordion-header {
+    background-color: #6c757d; /* Bootstrap gray color */
+    color: white;
+    border: 1px solid #6c757d; /* Match border color with background */
+    cursor: pointer;
+}
+
+.custom-accordion-header:focus {
+    box-shadow: none; /* Remove focus outline for a button-like look */
+}
+
+.custom-accordion-header:hover {
+    background-color: #5a6268; /* Darker gray on hover */
+}

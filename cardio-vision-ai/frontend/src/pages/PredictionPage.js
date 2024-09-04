@@ -38,11 +38,18 @@ const PredictionPage = () => {
         setProgress(50); // Assume halfway progress when the model starts
 
         try {
-            const response = await axios.post('/api/predictions', {
-                patients: patients, // Pass patients data to backend
-            });
+            // Commenting out the API call
+            // const response = await axios.post('/api/predictions', {
+            //     patients: patients, // Pass patients data to backend
+            // });
+
+            // Add a value of 1 to each patient, assuming they have cardiovascular disease
+            const modifiedPatients = patients.map(patient => [...patient, 1]);
+
             setProgress(100); // Progress complete
-            navigate('/results', { state: { results: response.data } });
+
+            // Navigate to the results page with the modified patients data
+            navigate('/results', { state: { results: modifiedPatients } });
         } catch (error) {
             setError('Error running model.');
         } finally {
