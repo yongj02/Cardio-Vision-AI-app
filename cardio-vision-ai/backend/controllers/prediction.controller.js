@@ -1,4 +1,5 @@
 const Prediction = require('../models/Prediction');
+const runModel = require('../utils/runModel');
 
 // Route to handle the prediction process
 exports.createPrediction = async (req, res) => {
@@ -49,3 +50,23 @@ exports.markAsIncorrect = async (req, res) => {
         res.status(404).json({ message: 'Prediction not found' });
     }
 };
+
+exports.runModel = async (req, res) => {
+    const { dataset, manualData } = req.body;
+    
+    try {
+        // Combine dataset and manualData if both are provided, otherwise use one of them
+        const patientData = dataset || manualData;
+
+        // Call the dummy model function
+        const result = runModel(patientData);
+
+        // Send the result back to the client
+        res.json({ prediction: result });
+    } catch (error) {
+        console.error('Error running model:', error);
+        res.status(500).json({ error: 'Failed to run model' });
+    }
+};
+
+

@@ -1,20 +1,18 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+// src/pages/Signup.js
+import React, { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
-function SignupPage() {
-    const [name, setName] = useState('');
+const Signup = () => {
+    const { signup } = useContext(AuthContext);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            const { data } = await axios.post('/api/auth/register', { name, email, password });
-            localStorage.setItem('token', data.token);
-            window.location.href = '/dashboard';
-        } catch (error) {
-            console.error('Error signing up', error);
-        }
+        await signup(email, password);
+        navigate('/predictions');
     };
 
     return (
@@ -22,21 +20,13 @@ function SignupPage() {
             <h2>Sign Up</h2>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label>Name</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
-                </div>
-                <div className="form-group">
-                    <label>Email</label>
+                    <label>Email address</label>
                     <input
                         type="email"
                         className="form-control"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        required
                     />
                 </div>
                 <div className="form-group">
@@ -46,14 +36,16 @@ function SignupPage() {
                         className="form-control"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        required
                     />
                 </div>
-                <button type="submit" className="btn btn-primary">
-                    Sign Up
-                </button>
+                <button type="submit" className="btn btn-primary">Sign Up</button>
             </form>
+            <p className="mt-3">
+                Already have an account? <Link to="/login">Log in here</Link>.
+            </p>
         </div>
     );
-}
+};
 
-export default SignupPage;
+export default Signup;

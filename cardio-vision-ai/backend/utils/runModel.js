@@ -1,8 +1,7 @@
 const runModel = (patientData) => {
-    // Placeholder: Implement your model here
-    // Example: return model.predict(patientData);
-
-    return 'Positive'; // or 'Negative', based on your model's output
+    // For now, return a dummy prediction based on simple logic
+    return patientData.length > 0 ? 'Positive' : 'Negative'; 
+    // Replace this with the actual model's prediction logic
 };
 
 module.exports = runModel;
