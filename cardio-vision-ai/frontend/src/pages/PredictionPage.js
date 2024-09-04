@@ -17,7 +17,7 @@ const PredictionPage = () => {
     const [progress, setProgress] = useState(0);
     const [error, setError] = useState('');
     const [patients, setPatients] = useState([]);
-    const [showPatients, setShowPatients] = useState(false);
+    const [showPatients, setShowPatients] = useState(true);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
     const [patientToDelete, setPatientToDelete] = useState(null);
@@ -169,6 +169,7 @@ const PredictionPage = () => {
                                 variant="danger"
                                 className="w-100 mb-2"
                                 onClick={handleDeleteAllPatients}
+                                disabled={patients.length === 0}
                             >
                                 Delete All Patients
                             </Button>

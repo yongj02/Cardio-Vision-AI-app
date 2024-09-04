@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Button, Table, Collapse } from 'react-bootstrap';
+import { Button, Table, Collapse, Modal, Form } from 'react-bootstrap';
 import { Bar, Pie, Scatter } from 'react-chartjs-2';
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Filler } from 'chart.js';
 
@@ -18,8 +18,10 @@ function ResultsPage() {
     const [updatedResults, setUpdatedResults] = useState(
         results.map(result => ({ ...result, isMarkedCorrect: false }))
     );
-    const [openPredictions, setOpenPredictions] = useState(false); // State for predictions visibility
-    const [openCharts, setOpenCharts] = useState(false); // State for charts visibility
+    const [openPredictions, setOpenPredictions] = useState(true); // Show predictions by default
+    const [openCharts, setOpenCharts] = useState(true); // Show charts by default
+    const [showSaveModal, setShowSaveModal] = useState(false); // Modal visibility state
+    const [recordName, setRecordName] = useState(''); // Record name state
 
     const handleMarkCorrect = (index) => {
         setUpdatedResults(prevResults => {
@@ -42,6 +44,16 @@ function ResultsPage() {
         });
     };
 
+    const handleSaveToAccount = () => {
+        setShowSaveModal(true);
+    };
+
+    const handleSaveRecord = () => {
+        console.log(`Saving record as: ${recordName}`);
+        setShowSaveModal(false);
+        setRecordName('');
+    };
+
     // Preparing data for charts
     const ages = updatedResults.map(result => result[0]);
     const genders = updatedResults.map(result => result[1]);
@@ -52,7 +64,6 @@ function ResultsPage() {
     const bmis = updatedResults.map(result => result[6]);
     const predictions = updatedResults.map(result => result[7]);
 
-    // Helper function to count occurrences
     const countOccurrences = (array) => {
         return array.reduce((acc, value) => {
             acc[value] = (acc[value] || 0) + 1;
@@ -60,9 +71,8 @@ function ResultsPage() {
         }, {});
     };
 
-    // Data for Age Distribution (Histogram)
     const ageData = {
-        labels: [...new Set(ages)].sort((a, b) => a - b), // Unique ages sorted
+        labels: [...new Set(ages)].sort((a, b) => a - b),
         datasets: [{
             label: 'Age Distribution',
             data: ages.reduce((acc, age) => {
@@ -75,7 +85,6 @@ function ResultsPage() {
         }],
     };
 
-    // Data for Gender Distribution (Pie Chart)
     const genderCounts = countOccurrences(genders);
     const genderData = {
         labels: Object.keys(genderCounts),
@@ -88,7 +97,6 @@ function ResultsPage() {
         }],
     };
 
-    // Data for Blood Pressure vs. Cardiovascular Disease (Scatter Plot)
     const bloodPressureData = {
         labels: ['Blood Pressure'],
         datasets: [{
@@ -101,7 +109,6 @@ function ResultsPage() {
         }],
     };
 
-    // Data for Cholesterol Levels vs. Cardiovascular Disease (Scatter Plot)
     const cholesterolData = {
         labels: ['Cholesterol'],
         datasets: [{
@@ -114,7 +121,6 @@ function ResultsPage() {
         }],
     };
 
-    // Data for Smoking Status vs. Cardiovascular Disease (Bar Graph)
     const smokingCounts = countOccurrences(smokingStatuses);
     const smokingData = {
         labels: Object.keys(smokingCounts),
@@ -132,7 +138,6 @@ function ResultsPage() {
         }],
     };
 
-    // Data for Diabetes vs. Cardiovascular Disease (Bar Graph)
     const diabetesCounts = countOccurrences(diabetesStatuses);
     const diabetesData = {
         labels: Object.keys(diabetesCounts),
@@ -150,7 +155,6 @@ function ResultsPage() {
         }],
     };
 
-    // Data for BMI vs. Cardiovascular Disease (Scatter Plot)
     const bmiData = {
         labels: ['BMI'],
         datasets: [{
@@ -179,7 +183,13 @@ function ResultsPage() {
 
             <Collapse in={openPredictions}>
                 <div id="collapsible-predictions">
-                    <Button variant="primary" className="mb-3">Save to Account</Button>
+                    <Button
+                        variant="primary"
+                        className="mb-3"
+                        onClick={handleSaveToAccount}
+                    >
+                        Save to Account
+                    </Button>
                     <Table className="table table-striped">
                         <thead>
                             <tr>
@@ -282,10 +292,37 @@ function ResultsPage() {
                             <h4>BMI vs. Cardiovascular Disease</h4>
                             <Scatter data={bmiData} />
                         </div>
-                        {/* Correlation Matrix would be implemented separately */}
                     </div>
                 </div>
             </Collapse>
+
+            {/* Save Record Modal */}
+            <Modal show={showSaveModal} onHide={() => setShowSaveModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Save Record</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group controlId="formRecordName">
+                            <Form.Label>Record Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                placeholder="Enter record name"
+                                value={recordName}
+                                onChange={(e) => setRecordName(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowSaveModal(false)}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={handleSaveRecord}>
+                        Save Record
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 }
