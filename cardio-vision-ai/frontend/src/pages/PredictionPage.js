@@ -17,11 +17,14 @@ const PredictionPage = () => {
     const [progress, setProgress] = useState(0);
     const [error, setError] = useState('');
     const [patients, setPatients] = useState([]);
+    const [showPatients, setShowPatients] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
     const [patientToDelete, setPatientToDelete] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
+        // You might want to fetch datasets or other initialization here
     }, []);
 
     const handleCollapse = (type) => {
@@ -35,8 +38,7 @@ const PredictionPage = () => {
         setProgress(50); // Assume halfway progress when the model starts
 
         try {
-            const response = await axios.post('/api/runModel', {
-                dataset: selectedDataset,
+            const response = await axios.post('/api/predictions', {
                 patients: patients, // Pass patients data to backend
             });
             setProgress(100); // Progress complete
@@ -57,7 +59,6 @@ const PredictionPage = () => {
             setError('Error processing file.');
         }
     };
-    
 
     const handleDeletePatient = (index) => {
         setPatientToDelete(index);
@@ -71,6 +72,19 @@ const PredictionPage = () => {
 
     const cancelDeletePatient = () => {
         setShowDeleteModal(false);
+    };
+
+    const handleDeleteAllPatients = () => {
+        setShowDeleteAllModal(true);
+    };
+
+    const confirmDeleteAllPatients = () => {
+        setPatients([]);
+        setShowDeleteAllModal(false);
+    };
+
+    const cancelDeleteAllPatients = () => {
+        setShowDeleteAllModal(false);
     };
 
     return (
@@ -134,54 +148,69 @@ const PredictionPage = () => {
                         </div>
                     </Collapse>
 
+                    {/* Added Patients Section */}
+                    <Button
+                        variant="secondary"
+                        className="w-100 mb-2"
+                        onClick={() => setShowPatients(!showPatients)}
+                    >
+                        {showPatients ? 'Hide Added Patients' : 'Show Added Patients'}
+                    </Button>
+                    <Collapse in={showPatients}>
+                        <div className="mt-3">
+                            <Button
+                                variant="danger"
+                                className="w-100 mb-2"
+                                onClick={handleDeleteAllPatients}
+                            >
+                                Delete All Patients
+                            </Button>
+                            {patients.length === 0 ? (
+                                <p>No patients added.</p>
+                            ) : (
+                                <Table striped bordered hover>
+                                    <thead>
+                                        <tr>
+                                            <th>Age</th>
+                                            <th>Gender</th>
+                                            <th>Blood Pressure</th>
+                                            <th>Cholesterol Levels</th>
+                                            <th>Smoking Status</th>
+                                            <th>Diabetes</th>
+                                            <th>BMI</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {patients.map((patient, index) => (
+                                            <tr key={index}>
+                                                <td>{patient[0]}</td>
+                                                <td>{patient[1]}</td>
+                                                <td>{patient[2]}</td>
+                                                <td>{patient[3]}</td>
+                                                <td>{patient[4]}</td>
+                                                <td>{patient[5]}</td>
+                                                <td>{patient[6]}</td>
+                                                <td>
+                                                    <Button
+                                                        variant="danger"
+                                                        size="sm"
+                                                        onClick={() => handleDeletePatient(index)}
+                                                    >
+                                                        Delete
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            )}
+                        </div>
+                    </Collapse>
+
                     <Button variant="success" className="w-100 mt-3" onClick={handlePredict}>
                         Predict
                     </Button>
-
-                    {/* Display Added Patients */}
-                    <div className="mt-3">
-                        <h4>Added Patients</h4>
-                        {patients.length === 0 ? (
-                            <p>No patients added.</p>
-                        ) : (
-                            <Table striped bordered hover>
-                                <thead>
-                                    <tr>
-                                        <th>Age</th>
-                                        <th>Gender</th>
-                                        <th>Blood Pressure</th>
-                                        <th>Cholesterol Levels</th>
-                                        <th>Smoking Status</th>
-                                        <th>Diabetes</th>
-                                        <th>BMI</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {patients.map((patient, index) => (
-                                        <tr key={index}>
-                                            <td>{patient[0]}</td>
-                                            <td>{patient[1]}</td>
-                                            <td>{patient[2]}</td>
-                                            <td>{patient[3]}</td>
-                                            <td>{patient[4]}</td>
-                                            <td>{patient[5]}</td>
-                                            <td>{patient[6]}</td>
-                                            <td>
-                                                <Button
-                                                    variant="danger"
-                                                    size="sm"
-                                                    onClick={() => handleDeletePatient(index)}
-                                                >
-                                                    Delete
-                                                </Button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </Table>
-                        )}
-                    </div>
                 </>
             )}
 
@@ -197,6 +226,22 @@ const PredictionPage = () => {
                     </Button>
                     <Button variant="danger" onClick={confirmDeletePatient}>
                         Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Delete All Confirmation Modal */}
+            <Modal show={showDeleteAllModal} onHide={cancelDeleteAllPatients}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>Are you sure you want to delete all added patients?</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={cancelDeleteAllPatients}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={confirmDeleteAllPatients}>
+                        Delete All
                     </Button>
                 </Modal.Footer>
             </Modal>
