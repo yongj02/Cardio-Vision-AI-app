@@ -21,7 +21,7 @@ const Navbar = () => {
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <Link className="navbar-brand" to="/">
                 <img src={logo} alt="CardioVisionAI" style={{ height: '30px' }} />
-                CardioVisionAI
+                &nbsp;Cardio Vision AI
             </Link>
             <div className="collapse navbar-collapse">
                 <ul className="navbar-nav ml-auto">

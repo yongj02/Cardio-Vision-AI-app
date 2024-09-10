@@ -39,3 +39,7 @@
 .btn-space {
     margin-right: 10px; /* Space after a button */
 }
+
+.tab-space {
+    padding-left: 1em; /* Acts as a tab space */
+}

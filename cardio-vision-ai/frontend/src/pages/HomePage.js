@@ -3,7 +3,7 @@ import React from 'react';
 function HomePage() {
     return (
         <div className="container text-center">
-            <h1>Welcome to CardioVisionAI</h1>
+            <h1>Welcome to Cardio Vision AI</h1>
             <p>CardioVisionAI helps doctors make better decisions by predicting cardiovascular disease risks using AI.</p>
             <p><a href="/prediction" className="btn btn-primary">Get Started Without Signing Up</a></p>
             <hr />
