@@ -30,7 +30,7 @@ const Signup = () => {
         }
         try {
             await register(name, username, password);
-            setMessage('Registration successful!');
+            setMessage('Registration successful! Redirecting...');
             setAlertType('success');
             setTimeout(() => {
                 navigate('/prediction');
