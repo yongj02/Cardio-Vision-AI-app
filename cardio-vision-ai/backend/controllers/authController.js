@@ -8,6 +8,7 @@ const registerUser = async (req, res) => {
     await user.save();
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
+    console.error('Error in registerUser:', error);
     res.status(400).json({ error: error.message });
   }
 };
@@ -29,4 +30,14 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+const getUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.sendStatus(404);
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { registerUser, loginUser, getUser };
