@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const patientRoutes = require('./routes/patientRoutes');
-// const predictionRoutes = require('./routes/predictionRoutes');
+const datasetRoutes = require('./routes/datasetRoutes'); // Import dataset routes
 const cors = require('cors'); // Import cors
 
 dotenv.config();
@@ -21,10 +21,11 @@ const corsOptions = {
 app.use(cors(corsOptions)); // Use cors middleware with options
 
 app.use(express.json());
+app.use('/uploads', express.static('uploads')); // Serve uploaded files
 
 app.use('/api/auth', authRoutes);
 app.use('/api/patient', patientRoutes);
-// app.use('/api/predict', predictionRoutes);
+app.use('/api/datasets', datasetRoutes); // Use dataset routes
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

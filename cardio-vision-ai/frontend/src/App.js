@@ -6,6 +6,7 @@ import SignupPage from './pages/SignupPage';
 import PredictionPage from './pages/PredictionPage';
 import ProfilePage from './pages/ProfilePage';
 import ResultsPage from './pages/ResultsPage';
+import DatasetUploadPage from './pages/DatasetUploadPage'; 
 import NavBar from './components/NavBar';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
                 <Route path="/prediction" element={<PredictionPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/results" element={<ResultsPage />} />
+                <Route path="/upload-dataset" element={<DatasetUploadPage />} /> {/* Hidden route */}
             </Routes>
         </Router>
     );
