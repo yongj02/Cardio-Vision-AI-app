@@ -59,7 +59,7 @@ const ProfilePage = () => {
         }
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`/api/patients/update/${renamingId}`, { name: newName }, {
+            await axios.put(`/api/patients/update/name/${renamingId}`, { name: newName }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setResults(results.map(result =>
@@ -118,7 +118,7 @@ const ProfilePage = () => {
                                     <Button 
                                         variant="primary" 
                                         className="me-2"
-                                        onClick={() => navigate('/results', { state: { results: [result] } })}
+                                        onClick={() => navigate('/results', { state: { results: result, isSaved: true } })}
                                     >
                                         View
                                     </Button>

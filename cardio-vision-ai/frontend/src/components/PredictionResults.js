@@ -5,9 +5,8 @@ import axios from 'axios';
 import * as XLSX from 'xlsx'; 
 import { saveAs } from 'file-saver'; 
 
-function PredictionResults({ results, updatedResults, setUpdatedResults }) {
+function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved }) {
     const { isLoggedIn } = useContext(AuthContext);
-
     const [openPredictions, setOpenPredictions] = useState(true);
     const [showSaveModal, setShowSaveModal] = useState(false);
     const [showExportModal, setShowExportModal] = useState(false);
@@ -19,15 +18,17 @@ function PredictionResults({ results, updatedResults, setUpdatedResults }) {
     const [editIndex, setEditIndex] = useState(null);
     const [newPrediction, setNewPrediction] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
-    const [alertMessage, setAlertMessage] = useState(''); // State for alert message
-    const [alertType, setAlertType] = useState('success'); // 'success' or 'danger'
-    const [showAlert, setShowAlert] = useState(false); // Control alert visibility
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertType, setAlertType] = useState('success');
+    const [showAlert, setShowAlert] = useState(false);
+
+    console.log(updatedResults);
 
     useEffect(() => {
         if (showAlert) {
             const timer = setTimeout(() => {
                 setShowAlert(false);
-            }, 3000); // Alert will be shown for 3 seconds
+            }, 3000);
             return () => clearTimeout(timer);
         }
     }, [showAlert]);
@@ -74,7 +75,8 @@ function PredictionResults({ results, updatedResults, setUpdatedResults }) {
             stSlope: row[10],
             predictionOutcome: row[11] === 1 ? 'High Risk' : 'Low Risk'
         }));
-
+        console.log(patientInfos);
+    
         try {
             const token = localStorage.getItem('token');
             await axios.post('/api/patients/save', {
@@ -86,7 +88,7 @@ function PredictionResults({ results, updatedResults, setUpdatedResults }) {
                     'Content-Type': 'application/json'
                 }
             });
-
+    
             setAlertMessage('Record saved successfully!');
             setAlertType('success');
         } catch (error) {
@@ -98,6 +100,49 @@ function PredictionResults({ results, updatedResults, setUpdatedResults }) {
         }
     };
     
+
+    const handleUpdateRecord = async (recordId) => {
+        try {
+            const token = localStorage.getItem('token');
+    
+            // Assuming updatedResults is an array of arrays where each inner array represents a patient record
+            const patientInfos = updatedResults.map(row => ({
+                age: row[0],
+                gender: row[1],
+                chestPainType: row[2],
+                bloodPressure: row[3],
+                cholesterol: row[4],
+                fastingBloodSugar: row[5],
+                restingECG: row[6],
+                maxHeartRate: row[7],
+                exerciseAngina: row[8],
+                oldpeak: row[9],
+                stSlope: row[10],
+                predictionOutcome: row[11] === 1 ? 'High Risk' : 'Low Risk'
+            }));
+    
+            await axios.put(`/api/patients/update/patients/${recordId}`, {
+                patientInfos: patientInfos
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+    
+            setAlertMessage('Record updated successfully!');
+            setAlertType('success');
+        } catch (error) {
+            setAlertMessage('Failed to update record.');
+            setAlertType('danger');
+        } finally {
+            setShowAlert(true);
+            setShowSaveModal(false);
+        }
+    };
+    
+    
+
     const handleFileNameChange = (e) => {
         const newFileName = e.target.value;
         setExportFileName(newFileName);
@@ -167,15 +212,26 @@ function PredictionResults({ results, updatedResults, setUpdatedResults }) {
                             {alertMessage}
                         </Alert>
                     )}
-                    
-                    <Button
-                        variant="primary"
-                        className="mb-3"
-                        onClick={() => setShowSaveModal(true)}
-                        disabled={!isLoggedIn}
-                    >
-                        Save to Account
-                    </Button>
+
+                    {isSaved ? (
+                        <Button
+                            variant="primary"
+                            className="mb-3"
+                            onClick={() => handleUpdateRecord(results._id)} // Adjust based on how you manage record ID
+                        >
+                            Update Result
+                        </Button>
+                    ) : (
+                        <Button
+                            variant="primary"
+                            className="mb-3"
+                            onClick={() => setShowSaveModal(true)}
+                            disabled={!isLoggedIn}
+                        >
+                            Save to Account
+                        </Button>
+                    )}
+
                     <Button
                         variant="primary"
                         className="mb-3"
@@ -259,7 +315,7 @@ function PredictionResults({ results, updatedResults, setUpdatedResults }) {
             {/* Save Record Modal */}
             <Modal show={showSaveModal} onHide={() => setShowSaveModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Save Record</Modal.Title>
+                    <Modal.Title>{isSaved ? 'Update Record' : 'Save Record'}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
@@ -281,8 +337,8 @@ function PredictionResults({ results, updatedResults, setUpdatedResults }) {
                     <Button variant="secondary" onClick={() => setShowSaveModal(false)}>
                         Cancel
                     </Button>
-                    <Button variant="primary" onClick={() => handleSaveRecord(recordName)}>
-                        Save
+                    <Button variant="primary" onClick={() => isSaved ? handleUpdateRecord(results._id) : handleSaveRecord(recordName)}>
+                        {isSaved ? 'Update' : 'Save'}
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -333,3 +389,4 @@ function PredictionResults({ results, updatedResults, setUpdatedResults }) {
 }
 
 export default PredictionResults;
+

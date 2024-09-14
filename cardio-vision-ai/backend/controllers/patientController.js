@@ -49,7 +49,7 @@ const deletePatientData = async (req, res) => {
 };
 
 // Update the name of a PredictionResult
-const updatePatientData = async (req, res) => {
+const updateResultName = async (req, res) => {
   const { id } = req.params;
   const { name } = req.body; // Expecting updated name
 
@@ -68,6 +68,38 @@ const updatePatientData = async (req, res) => {
   }
 };
 
+// Update the savedPatients for a PredictionResult
+const updatePatientData = async (req, res) => {
+  const { id } = req.params;
+  const { patientInfos } = req.body; // Expecting an array of patientInfos
+
+  try {
+    const predictionResult = await PredictionResult.findById(id);
+    if (!predictionResult) {
+      return res.status(404).json({ error: 'PredictionResult not found' });
+    }
+
+    // Delete existing patients
+    await Patient.deleteMany({ _id: { $in: predictionResult.savedPatients } });
+
+    // Create and save new patients
+    const savedPatientIds = [];
+    for (const patientInfo of patientInfos) {
+      const patient = new Patient({ patientInfo });
+      await patient.save();
+      savedPatientIds.push(patient._id);
+    }
+
+    // Update the PredictionResult with new patients
+    predictionResult.savedPatients = savedPatientIds;
+    await predictionResult.save();
+
+    res.status(200).json({ message: 'PredictionResult updated with new patients successfully', predictionResult });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 // Retrieve all PredictionResults for the current user
 const getUserPredictionResults = async (req, res) => {
   try {
@@ -78,4 +110,4 @@ const getUserPredictionResults = async (req, res) => {
   }
 };
 
-module.exports = { savePatientData, deletePatientData, updatePatientData, getUserPredictionResults };
+module.exports = { savePatientData, deletePatientData, updateResultName, updatePatientData, getUserPredictionResults };
