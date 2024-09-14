@@ -6,7 +6,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver'; 
 
 function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved }) {
-    const { isLoggedIn } = useContext(AuthContext);
+    const { isLoggedIn, token } = useContext(AuthContext);
     const [openPredictions, setOpenPredictions] = useState(true);
     const [showSaveModal, setShowSaveModal] = useState(false);
     const [showExportModal, setShowExportModal] = useState(false);
@@ -78,7 +78,6 @@ function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved
         console.log(patientInfos);
     
         try {
-            const token = localStorage.getItem('token');
             await axios.post('/api/patients/save', {
                 name: recordName,
                 patientInfos: patientInfos
@@ -103,8 +102,6 @@ function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved
 
     const handleUpdateRecord = async (recordId) => {
         try {
-            const token = localStorage.getItem('token');
-    
             // Assuming updatedResults is an array of arrays where each inner array represents a patient record
             const patientInfos = updatedResults.map(row => ({
                 age: row[0],

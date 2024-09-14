@@ -9,15 +9,15 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [user, setUser] = useState(null);
+    const [token, setToken] = useState(localStorage.getItem('token'));
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
         if (token) {
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             setIsLoggedIn(true);
             fetchUser();
         }
-    }, []);
+    }, [token]);
 
     const fetchUser = async () => {
         try {
@@ -32,9 +32,9 @@ export const AuthProvider = ({ children }) => {
     const login = async (username, password) => {
         try {
             const response = await axios.post('/api/auth/login', { username, password });
-            const token = response.data.token;
-            localStorage.setItem('token', token);
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            const newToken = response.data.token;
+            localStorage.setItem('token', newToken);
+            setToken(newToken); // Update token in state
             setIsLoggedIn(true);
             await fetchUser();
         } catch (error) {
@@ -55,13 +55,14 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         localStorage.removeItem('token');
+        setToken(null); // Clear token from state
         delete axios.defaults.headers.common['Authorization'];
         setIsLoggedIn(false);
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, user, login, register, logout }}>
+        <AuthContext.Provider value={{ isLoggedIn, user, token, login, register, logout }}>
             {children}
         </AuthContext.Provider>
     );

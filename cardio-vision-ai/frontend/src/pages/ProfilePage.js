@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { Button, Card, Container, Row, Col, Modal, Form, Alert } from 'react-bootstrap';
 import { toast } from 'react-toastify'; // Import the toast functionality
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
+import { AuthContext } from '../context/AuthContext'; 
 
 // Import toast CSS
 import 'react-toastify/dist/ReactToastify.css';
 
 const ProfilePage = () => {
+    const { token } = useContext(AuthContext);
     const [results, setResults] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [deletingId, setDeletingId] = useState(null);
@@ -21,7 +23,6 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchResults = async () => {
             try {
-                const token = localStorage.getItem('token');
                 const response = await axios.get('/api/patients/results', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
@@ -36,7 +37,6 @@ const ProfilePage = () => {
 
     const handleDelete = async () => {
         try {
-            const token = localStorage.getItem('token');
             await axios.delete(`/api/patients/delete/${deletingId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -58,7 +58,6 @@ const ProfilePage = () => {
             return;
         }
         try {
-            const token = localStorage.getItem('token');
             await axios.put(`/api/patients/update/name/${renamingId}`, { name: newName }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
