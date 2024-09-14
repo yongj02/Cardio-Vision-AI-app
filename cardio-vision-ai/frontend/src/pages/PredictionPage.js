@@ -121,7 +121,7 @@ const PredictionPage = () => {
                     </Button>
                     <Collapse in={showDatabase}>
                         <div id="database-collapse">
-                            <DatabaseSelector datasets={datasets} setSelectedDataset={setSelectedDataset} />
+                        <DatabaseSelector addPatients={handleFileProcessed} />
                         </div>
                     </Collapse>
 

@@ -100,9 +100,23 @@ const deleteDataset = async (req, res) => {
     }
 };
 
+// Function to serve dataset files
+const getDatasetFile = async (req, res) => {
+    try {
+        const dataset = await Dataset.findById(req.params.id);
+        if (!dataset) {
+            return res.status(404).json({ message: 'Dataset not found' });
+        }
+
+        res.sendFile(path.resolve(dataset.fileUrl));
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving dataset file', error });
+    }
+};
 
 module.exports = {
     uploadDataset,
     getDatasets,
-    deleteDataset
+    deleteDataset,
+    getDatasetFile
 };
