@@ -21,6 +21,7 @@ const PredictionPage = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
     const [patientToDelete, setPatientToDelete] = useState(null);
+    const [showExplanation, setShowExplanation] = useState(false); // New state for explanation collapse
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -97,6 +98,93 @@ const PredictionPage = () => {
     return (
         <div className="container">
             <h2>Make Predictions</h2>
+
+            {/* Collapsible Explanation Section */}
+            <Button
+                variant="info"
+                className="w-100 mb-2"
+                onClick={() => setShowExplanation(!showExplanation)}
+                aria-controls="explanation-collapse"
+                aria-expanded={showExplanation}
+            >
+                Required Variables for Prediction
+            </Button>
+            <Collapse in={showExplanation}>
+                <div id="explanation-collapse" className="mb-4">
+                    <p>
+                        To make predictions, your dataset must include the following columns with exact names and data types:
+                    </p>
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                                <th>Variable</th>
+                                <th>Example Value</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Age</td>
+                                <td>45</td>
+                                <td>Patient's age in years.</td>
+                            </tr>
+                            <tr>
+                                <td>Sex</td>
+                                <td>M</td>
+                                <td>Patient's sex: M (male) or F (female).</td>
+                            </tr>
+                            <tr>
+                                <td>ChestPainType</td>
+                                <td>ATA</td>
+                                <td>Type of chest pain experienced by the patient: ATA (typical angina), NAP (non-anginal pain), etc.</td>
+                            </tr>
+                            <tr>
+                                <td>RestingBP</td>
+                                <td>120</td>
+                                <td>Resting blood pressure in mm Hg.</td>
+                            </tr>
+                            <tr>
+                                <td>Cholesterol</td>
+                                <td>210</td>
+                                <td>Serum cholesterol level in mg/dl.</td>
+                            </tr>
+                            <tr>
+                                <td>FastingBS</td>
+                                <td>0</td>
+                                <td>Fasting blood sugar level: 1 if > 120 mg/dl, 0 otherwise.</td>
+                            </tr>
+                            <tr>
+                                <td>RestingECG</td>
+                                <td>Normal</td>
+                                <td>Results of resting electrocardiographic measurement: Normal, ST, etc.</td>
+                            </tr>
+                            <tr>
+                                <td>MaxHR</td>
+                                <td>150</td>
+                                <td>Maximum heart rate achieved during exercise.</td>
+                            </tr>
+                            <tr>
+                                <td>ExerciseAngina</td>
+                                <td>N</td>
+                                <td>Exercise induced angina: Y (yes) or N (no).</td>
+                            </tr>
+                            <tr>
+                                <td>Oldpeak</td>
+                                <td>1.0</td>
+                                <td>Depression induced by exercise relative to rest.</td>
+                            </tr>
+                            <tr>
+                                <td>ST_Slope</td>
+                                <td>Up</td>
+                                <td>Slope of the peak exercise ST segment: Up, Flat, Down.</td>
+                            </tr>
+                        </tbody>
+                    </Table>
+                    <p className="text-danger">
+                        <strong>Note:</strong> The column names in your dataset must exactly match those listed above.
+                    </p>
+                </div>
+            </Collapse>
 
             {/* Error and Progress Indicators */}
             {error && <Alert variant="danger">{error}</Alert>}
