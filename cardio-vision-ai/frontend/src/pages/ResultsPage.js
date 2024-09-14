@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button, Table, Collapse, Modal, Form } from 'react-bootstrap';
 import { Bar, Pie, Scatter } from 'react-chartjs-2';
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Filler } from 'chart.js';
+import { AuthContext } from '../context/AuthContext'; // Corrected import
+import { saveAs } from 'file-saver'; // for file saving
+import * as XLSX from 'xlsx'; // for Excel export
+import Papa from 'papaparse'; // for CSV export
 
-// Register components
+// Register Chart.js components
 ChartJS.register(
     Title, Tooltip, Legend, 
     BarElement, CategoryScale, LinearScale, 
@@ -15,184 +19,120 @@ ChartJS.register(
 function ResultsPage() {
     const location = useLocation();
     const { results = [] } = location.state || {};
-    const [updatedResults, setUpdatedResults] = useState(
-        results.map(result => ({ ...result, isMarkedCorrect: false }))
-    );
-    const [openPredictions, setOpenPredictions] = useState(true); // Show predictions by default
-    const [openCharts, setOpenCharts] = useState(true); // Show charts by default
-    const [showSaveModal, setShowSaveModal] = useState(false); // Modal visibility state
-    const [recordName, setRecordName] = useState(''); // Record name state
+    const { isLoggedIn } = useContext(AuthContext); // Get isLoggedIn from AuthContext
 
-    const handleMarkCorrect = (index) => {
-        setUpdatedResults(prevResults => {
-            const newResults = [...prevResults];
-            newResults[index] = { ...newResults[index], isMarkedCorrect: true };
-            return newResults;
-        });
+    const [updatedResults, setUpdatedResults] = useState(
+        results.map(result => ({ ...result, isMarkedIncorrect: false }))
+    );
+    const [openPredictions, setOpenPredictions] = useState(true);
+    const [openCharts, setOpenCharts] = useState(true);
+    const [showSaveModal, setShowSaveModal] = useState(false);
+    const [recordName, setRecordName] = useState('');
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editIndex, setEditIndex] = useState(null);
+    const [newPrediction, setNewPrediction] = useState(null);
+    const [showExportModal, setShowExportModal] = useState(false);
+    const [exportFileName, setExportFileName] = useState('');
+    const [exportFormat, setExportFormat] = useState('csv'); // Default export format
+    const [filenameError, setFilenameError] = useState(false);
+    const [errorSaving, setErrorSaving] = useState(false);
+
+    const handleEditPrediction = (index) => {
+        setEditIndex(index);
+        setNewPrediction(updatedResults[index][11] === 1 ? 'High Risk' : 'Low Risk');
+        setShowEditModal(true);
     };
 
-    const handleMarkIncorrect = (index) => {
+    const handleSaveEdit = () => {
         setUpdatedResults(prevResults => {
             const newResults = [...prevResults];
-            const updatedPrediction = newResults[index][7] === 1 ? 0 : 1;
-            newResults[index] = {
-                ...newResults[index],
-                [7]: updatedPrediction,
-                isMarkedCorrect: false
-            };
+            newResults[editIndex][11] = newPrediction === 'High Risk' ? 1 : 0;
             return newResults;
         });
+        setShowEditModal(false);
+        setEditIndex(null);
     };
 
     const handleSaveToAccount = () => {
+        if (!isLoggedIn) return; // Exit if not logged in
         setShowSaveModal(true);
     };
 
     const handleSaveRecord = () => {
+        if (!recordName.trim()) {
+            setErrorSaving(true);
+            return;
+        }
+
+        setErrorSaving(false);
         console.log(`Saving record as: ${recordName}`);
         setShowSaveModal(false);
         setRecordName('');
     };
 
-    // Preparing data for charts
-    const ages = updatedResults.map(result => result[0]);
-    const genders = updatedResults.map(result => result[1]);
-    const chestPainTypes = updatedResults.map(result => result[2]);
-    const bloodPressures = updatedResults.map(result => result[3]);
-    const cholesterols = updatedResults.map(result => result[4]);
-    const fastingBS = updatedResults.map(result => result[5]);
-    const restingECGs = updatedResults.map(result => result[6]);
-    const maxHRs = updatedResults.map(result => result[7]);
-    const exerciseAnginas = updatedResults.map(result => result[8]);
-    const oldpeaks = updatedResults.map(result => result[9]);
-    const stSlopes = updatedResults.map(result => result[10]);
-    const predictions = updatedResults.map(result => result[11]);
+    const handleExport = () => {
+        if (!exportFileName.trim()) {
+            setFilenameError(true);
+            return;
+        }
 
-    const countOccurrences = (array) => {
-        return array.reduce((acc, value) => {
-            acc[value] = (acc[value] || 0) + 1;
-            return acc;
-        }, {});
+        setFilenameError(false);
+
+        const fileName = `${exportFileName}.xlsx`;
+        const ws = XLSX.utils.json_to_sheet(updatedResults.map(row => ({
+            Age: row[0],
+            Gender: row[1],
+            'Chest Pain Type': row[2],
+            'Blood Pressure': row[3],
+            Cholesterol: row[4],
+            'Fasting Blood Sugar': row[5],
+            'Resting Electrocardiogram': row[6],
+            'Max Heart Rate': row[7],
+            'Exercise Angina': row[8],
+            Oldpeak: row[9],
+            'ST Slope': row[10],
+            Prediction: row[11] === 1 ? 'High Risk' : 'Low Risk'
+        })));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Results');
+
+        if (exportFormat === 'csv') {
+            // Convert JSON data to CSV format and trigger download
+            const csv = Papa.unparse(updatedResults.map(row => ({
+                Age: row[0],
+                Gender: row[1],
+                'Chest Pain Type': row[2],
+                'Blood Pressure': row[3],
+                Cholesterol: row[4],
+                'Fasting Blood Sugar': row[5],
+                'Resting Electrocardiogram': row[6],
+                'Max Heart Rate': row[7],
+                'Exercise Angina': row[8],
+                Oldpeak: row[9],
+                'ST Slope': row[10],
+                Prediction: row[11] === 1 ? 'High Risk' : 'Low Risk'
+            })));
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            saveAs(blob, `${exportFileName}.csv`);
+        } else if (exportFormat === 'excel') {
+            // Export as Excel file
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+            const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+            saveAs(blob, fileName);
+        }
+        
+        setShowExportModal(false);
+        setExportFileName('');
     };
 
-    const ageData = {
-        labels: [...new Set(ages)].sort((a, b) => a - b),
-        datasets: [{
-            label: 'Age Distribution',
-            data: ages.reduce((acc, age) => {
-                acc[age] = (acc[age] || 0) + 1;
-                return acc;
-            }, {}),
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1,
-        }],
-    };
-
-    const genderCounts = countOccurrences(genders);
-    const genderData = {
-        labels: Object.keys(genderCounts),
-        datasets: [{
-            label: 'Gender Distribution',
-            data: Object.values(genderCounts),
-            backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)'],
-            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
-            borderWidth: 1,
-        }],
-    };
-
-    const bloodPressureData = {
-        labels: ['Blood Pressure'],
-        datasets: [{
-            label: 'Cardiovascular Disease',
-            data: bloodPressures.map((bp, index) => ({ x: bp, y: predictions[index] })),
-            backgroundColor: 'rgba(255, 159, 64, 0.2)',
-            borderColor: 'rgba(255, 159, 64, 1)',
-            borderWidth: 1,
-            showLine: false,
-        }],
-    };
-
-    const cholesterolData = {
-        labels: ['Cholesterol'],
-        datasets: [{
-            label: 'Cardiovascular Disease',
-            data: cholesterols.map((chol, index) => ({ x: chol, y: predictions[index] })),
-            backgroundColor: 'rgba(153, 102, 255, 0.2)',
-            borderColor: 'rgba(153, 102, 255, 1)',
-            borderWidth: 1,
-            showLine: false,
-        }],
-    };
-
-    const fastingBSData = {
-        labels: ['Fasting Blood Sugar'],
-        datasets: [{
-            label: 'Cardiovascular Disease',
-            data: fastingBS.map((bs, index) => ({ x: bs, y: predictions[index] })),
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1,
-            showLine: false,
-        }],
-    };
-
-    const maxHRData = {
-        labels: ['Max Heart Rate'],
-        datasets: [{
-            label: 'Cardiovascular Disease',
-            data: maxHRs.map((hr, index) => ({ x: hr, y: predictions[index] })),
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgba(255, 99, 132, 1)',
-            borderWidth: 1,
-            showLine: false,
-        }],
-    };
-
-    const exerciseAnginaCounts = countOccurrences(exerciseAnginas);
-    const exerciseAnginaData = {
-        labels: Object.keys(exerciseAnginaCounts),
-        datasets: [{
-            label: 'Cardiovascular Disease by Exercise Angina',
-            data: Object.keys(exerciseAnginaCounts).map(status => {
-                return updatedResults.filter((_, i) => exerciseAnginas[i] === status).map(result => result[11]).reduce((acc, value) => {
-                    acc[value] = (acc[value] || 0) + 1;
-                    return acc;
-                }, {});
-            }),
-            backgroundColor: 'rgba(255, 205, 86, 0.2)',
-            borderColor: 'rgba(255, 205, 86, 1)',
-            borderWidth: 1,
-        }],
-    };
-
-    const oldpeakData = {
-        labels: ['Oldpeak'],
-        datasets: [{
-            label: 'Cardiovascular Disease',
-            data: oldpeaks.map((peak, index) => ({ x: peak, y: predictions[index] })),
-            backgroundColor: 'rgba(153, 102, 255, 0.2)',
-            borderColor: 'rgba(153, 102, 255, 1)',
-            borderWidth: 1,
-            showLine: false,
-        }],
-    };
-
-    const stSlopeCounts = countOccurrences(stSlopes);
-    const stSlopeData = {
-        labels: Object.keys(stSlopeCounts),
-        datasets: [{
-            label: 'Cardiovascular Disease by ST Slope',
-            data: Object.keys(stSlopeCounts).map(status => {
-                return updatedResults.filter((_, i) => stSlopes[i] === status).map(result => result[11]).reduce((acc, value) => {
-                    acc[value] = (acc[value] || 0) + 1;
-                    return acc;
-                }, {});
-            }),
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1,
-        }],
+    // Convert binary string to array buffer
+    const s2ab = (s) => {
+        const buf = new ArrayBuffer(s.length);
+        const view = new Uint8Array(buf);
+        for (let i = 0; i < s.length; i++) {
+            view[i] = s.charCodeAt(i) & 0xFF;
+        }
+        return buf;
     };
 
     return (
@@ -215,8 +155,16 @@ function ResultsPage() {
                         variant="primary"
                         className="mb-3"
                         onClick={handleSaveToAccount}
+                        disabled={!isLoggedIn} // Disable if not logged in
                     >
                         Save to Account
+                    </Button>
+                    <Button
+                        variant="primary"
+                        className="mb-3"
+                        onClick={() => setShowExportModal(true)}
+                    >
+                        Export Table
                     </Button>
                     <Table className="table table-striped">
                         <thead>
@@ -227,60 +175,40 @@ function ResultsPage() {
                                 <th>Blood Pressure</th>
                                 <th>Cholesterol</th>
                                 <th>Fasting Blood Sugar</th>
-                                <th>Resting ECG</th>
+                                <th>Resting Electrocardiogram</th>
                                 <th>Max Heart Rate</th>
                                 <th>Exercise Angina</th>
                                 <th>Oldpeak</th>
                                 <th>ST Slope</th>
                                 <th>Prediction</th>
-                                <th>Mark Correct</th>
-                                <th>Mark Incorrect</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {updatedResults.map((patient, index) => {
-                                const rowClass = patient.isMarkedCorrect
-                                    ? 'table-success'
-                                    : patient[11] === 1
-                                    ? ''
-                                    : 'table-danger';
-                                return (
-                                    <tr key={index} className={rowClass}>
-                                        <td>{patient[0]}</td>
-                                        <td>{patient[1]}</td>
-                                        <td>{patient[2]}</td>
-                                        <td>{patient[3]}</td>
-                                        <td>{patient[4]}</td>
-                                        <td>{patient[5]}</td>
-                                        <td>{patient[6]}</td>
-                                        <td>{patient[7]}</td>
-                                        <td>{patient[8]}</td>
-                                        <td>{patient[9]}</td>
-                                        <td>{patient[10]}</td>
-                                        <td>
-                                            {patient[11] === 1
-                                                ? <strong>High Risk</strong>
-                                                : <strong>Low Risk</strong>}
-                                        </td>
-                                        <td>
-                                            <Button
-                                                className="btn btn-success"
-                                                onClick={() => handleMarkCorrect(index)}
-                                            >
-                                                Correct
-                                            </Button>
-                                        </td>
-                                        <td>
-                                            <Button
-                                                className="btn btn-danger"
-                                                onClick={() => handleMarkIncorrect(index)}
-                                            >
-                                                Incorrect
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                            {updatedResults.map((result, index) => (
+                                <tr key={index}>
+                                    <td>{result[0]}</td>
+                                    <td>{result[1]}</td>
+                                    <td>{result[2]}</td>
+                                    <td>{result[3]}</td>
+                                    <td>{result[4]}</td>
+                                    <td>{result[5]}</td>
+                                    <td>{result[6]}</td>
+                                    <td>{result[7]}</td>
+                                    <td>{result[8]}</td>
+                                    <td>{result[9]}</td>
+                                    <td>{result[10]}</td>
+                                    <td>{result[11] === 1 ? 'High Risk' : 'Low Risk'}</td>
+                                    <td>
+                                        <Button
+                                            variant="warning"
+                                            onClick={() => handleEditPrediction(index)}
+                                        >
+                                            Edit
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </Table>
                 </div>
@@ -298,49 +226,10 @@ function ResultsPage() {
 
             <Collapse in={openCharts}>
                 <div id="collapsible-charts">
-                    <div className="charts">
-                        <h3>Charts</h3>
-                        <div className="chart-container">
-                            <h4>Age Distribution</h4>
-                            <Bar data={ageData} />
-                        </div>
-                        <div className="chart-container">
-                            <h4>Gender Distribution</h4>
-                            <Pie data={genderData} />
-                        </div>
-                        <div className="chart-container">
-                            <h4>Blood Pressure vs. Cardiovascular Disease</h4>
-                            <Scatter data={bloodPressureData} />
-                        </div>
-                        <div className="chart-container">
-                            <h4>Cholesterol Levels vs. Cardiovascular Disease</h4>
-                            <Scatter data={cholesterolData} />
-                        </div>
-                        <div className="chart-container">
-                            <h4>Fasting Blood Sugar vs. Cardiovascular Disease</h4>
-                            <Scatter data={fastingBSData} />
-                        </div>
-                        <div className="chart-container">
-                            <h4>Max Heart Rate vs. Cardiovascular Disease</h4>
-                            <Scatter data={maxHRData} />
-                        </div>
-                        <div className="chart-container">
-                            <h4>Exercise Angina vs. Cardiovascular Disease</h4>
-                            <Bar data={exerciseAnginaData} />
-                        </div>
-                        <div className="chart-container">
-                            <h4>Oldpeak vs. Cardiovascular Disease</h4>
-                            <Scatter data={oldpeakData} />
-                        </div>
-                        <div className="chart-container">
-                            <h4>ST Slope vs. Cardiovascular Disease</h4>
-                            <Bar data={stSlopeData} />
-                        </div>
-                    </div>
+                    {/* Include your chart components here */}
                 </div>
             </Collapse>
 
-            {/* Save Record Modal */}
             <Modal show={showSaveModal} onHide={() => setShowSaveModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Save Record</Modal.Title>
@@ -351,10 +240,19 @@ function ResultsPage() {
                             <Form.Label>Record Name</Form.Label>
                             <Form.Control
                                 type="text"
-                                placeholder="Enter record name"
                                 value={recordName}
-                                onChange={(e) => setRecordName(e.target.value)}
+                                onChange={(e) => {
+                                    setRecordName(e.target.value);
+                                    if (errorSaving && e.target.value.trim()) {
+                                        setErrorSaving(false);
+                                    }
+                                }}
+                                placeholder="Enter record name"
+                                isInvalid={errorSaving}
                             />
+                            <Form.Control.Feedback type="invalid">
+                                Please enter a record name.
+                            </Form.Control.Feedback>
                         </Form.Group>
                     </Form>
                 </Modal.Body>
@@ -363,7 +261,83 @@ function ResultsPage() {
                         Close
                     </Button>
                     <Button variant="primary" onClick={handleSaveRecord}>
-                        Save Record
+                        Save
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Prediction</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group controlId="formPrediction">
+                            <Form.Label>Prediction</Form.Label>
+                            <Form.Control
+                                as="select"
+                                value={newPrediction}
+                                onChange={(e) => setNewPrediction(e.target.value)}
+                            >
+                                <option>High Risk</option>
+                                <option>Low Risk</option>
+                            </Form.Control>
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={handleSaveEdit}>
+                        Save Changes
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showExportModal} onHide={() => setShowExportModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Export Data</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group controlId="formExportFileName">
+                            <Form.Label>File Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={exportFileName}
+                                onChange={(e) => {
+                                    setExportFileName(e.target.value);
+                                    if (filenameError && e.target.value.trim()) {
+                                        setFilenameError(false);
+                                    }
+                                }}
+                                placeholder="Enter file name"
+                                isInvalid={filenameError}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                Please enter a file name.
+                            </Form.Control.Feedback>
+                        </Form.Group>
+                        <Form.Group controlId="formExportFormat">
+                            <Form.Label>Export Format</Form.Label>
+                            <Form.Control
+                                as="select"
+                                value={exportFormat}
+                                onChange={(e) => setExportFormat(e.target.value)}
+                            >
+                                <option value="csv">CSV</option>
+                                <option value="excel">Excel</option>
+                            </Form.Control>
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowExportModal(false)}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={handleExport}>
+                        Export
                     </Button>
                 </Modal.Footer>
             </Modal>
