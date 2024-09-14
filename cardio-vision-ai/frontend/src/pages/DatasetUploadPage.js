@@ -14,7 +14,19 @@ const DatasetUploadPage = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [datasetToDelete, setDatasetToDelete] = useState(null);  // Track the dataset to delete
 
-    const requiredColumns = ['age', 'gender', 'blood pressure', 'cholesterol levels', 'smoking status', 'diabetes', 'BMI'];
+    const requiredColumns = [
+        'Age',
+        'Sex',
+        'ChestPainType',
+        'RestingBP',
+        'Cholesterol',
+        'FastingBS',
+        'RestingECG',
+        'MaxHR',
+        'ExerciseAngina',
+        'Oldpeak',
+        'ST_Slope'
+    ];
 
     // Fetch datasets on component mount
     const fetchDatasets = async () => {

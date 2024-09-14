@@ -121,7 +121,7 @@ const PredictionPage = () => {
                     </Button>
                     <Collapse in={showDatabase}>
                         <div id="database-collapse">
-                        <DatabaseSelector addPatients={handleFileProcessed} />
+                            <DatabaseSelector addPatients={handleFileProcessed} />
                         </div>
                     </Collapse>
 
@@ -180,12 +180,16 @@ const PredictionPage = () => {
                                     <thead>
                                         <tr>
                                             <th>Age</th>
-                                            <th>Gender</th>
-                                            <th>Blood Pressure</th>
-                                            <th>Cholesterol Levels</th>
-                                            <th>Smoking Status</th>
-                                            <th>Diabetes</th>
-                                            <th>BMI</th>
+                                            <th>Sex</th>
+                                            <th>Chest Pain Type</th>
+                                            <th>Resting BP</th>
+                                            <th>Cholesterol</th>
+                                            <th>Fasting BS</th>
+                                            <th>Resting ECG</th>
+                                            <th>Max HR</th>
+                                            <th>Exercise Angina</th>
+                                            <th>Oldpeak</th>
+                                            <th>ST Slope</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -199,6 +203,10 @@ const PredictionPage = () => {
                                                 <td>{patient[4]}</td>
                                                 <td>{patient[5]}</td>
                                                 <td>{patient[6]}</td>
+                                                <td>{patient[7]}</td>
+                                                <td>{patient[8]}</td>
+                                                <td>{patient[9]}</td>
+                                                <td>{patient[10]}</td>
                                                 <td>
                                                     <Button
                                                         variant="danger"

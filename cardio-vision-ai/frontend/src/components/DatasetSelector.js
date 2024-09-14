@@ -4,13 +4,17 @@ import axios from 'axios';
 import * as XLSX from 'xlsx'; // Import XLSX
 
 const requiredColumns = [
-    'age',
-    'gender',
-    'blood pressure',
-    'cholesterol levels',
-    'smoking status',
-    'diabetes',
-    'BMI'
+    'Age',
+    'Sex',
+    'ChestPainType',
+    'RestingBP',
+    'Cholesterol',
+    'FastingBS',
+    'RestingECG',
+    'MaxHR',
+    'ExerciseAngina',
+    'Oldpeak',
+    'ST_Slope'
 ];
 
 const DatabaseSelector = ({ addPatients }) => {

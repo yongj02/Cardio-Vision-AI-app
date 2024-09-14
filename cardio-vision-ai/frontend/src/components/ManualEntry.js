@@ -5,11 +5,15 @@ const ManualEntry = ({ addPatient }) => {
     const [newPatient, setNewPatient] = useState({
         age: '',
         gender: '',
+        chestPainType: '',
         bloodPressure: '',
         cholesterol: '',
-        smoking: '',
-        diabetes: '',
-        bmi: '',
+        fastingBS: '',
+        restingECG: '',
+        maxHR: '',
+        exerciseAngina: '',
+        oldpeak: '',
+        stSlope: '',
     });
     const [errors, setErrors] = useState({});
 
@@ -39,23 +43,31 @@ const ManualEntry = ({ addPatient }) => {
             const patientValues = [[
                 Number(newPatient.age),
                 newPatient.gender,
+                newPatient.chestPainType,
                 Number(newPatient.bloodPressure),
                 Number(newPatient.cholesterol),
-                newPatient.smoking,
-                newPatient.diabetes,
-                Number(newPatient.bmi),
+                Number(newPatient.fastingBS),
+                newPatient.restingECG,
+                Number(newPatient.maxHR),
+                newPatient.exerciseAngina,
+                Number(newPatient.oldpeak),
+                newPatient.stSlope,
             ]];
             setNewPatient({
                 age: '',
                 gender: '',
+                chestPainType: '',
                 bloodPressure: '',
                 cholesterol: '',
-                smoking: '',
-                diabetes: '',
-                bmi: '',
+                fastingBS: '',
+                restingECG: '',
+                maxHR: '',
+                exerciseAngina: '',
+                oldpeak: '',
+                stSlope: '',
             });
             setErrors({});
-            addPatient(patientValues); 
+            addPatient(patientValues);
         }
     };
 
@@ -93,6 +105,25 @@ const ManualEntry = ({ addPatient }) => {
                         {errors.gender}
                     </Form.Control.Feedback>
                 </Form.Group>
+                <Form.Group controlId="chestPainType">
+                    <Form.Label>Chest Pain Type</Form.Label>
+                    <Form.Control
+                        as="select"
+                        name="chestPainType"
+                        value={newPatient.chestPainType}
+                        onChange={handleInputChange}
+                        isInvalid={!!errors.chestPainType}
+                    >
+                        <option value="">Select...</option>
+                        <option value="ATA">ATA</option>
+                        <option value="NAP">NAP</option>
+                        <option value="ASY">ASY</option>
+                        <option value="TA">TA</option>
+                    </Form.Control>
+                    <Form.Control.Feedback type="invalid">
+                        {errors.chestPainType}
+                    </Form.Control.Feedback>
+                </Form.Group>
                 <Form.Group controlId="bloodPressure">
                     <Form.Label>Blood Pressure (mmHg)</Form.Label>
                     <Form.Control
@@ -119,53 +150,97 @@ const ManualEntry = ({ addPatient }) => {
                         {errors.cholesterol}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="smoking">
-                    <Form.Label>Smoking Status</Form.Label>
-                    <Form.Control
-                        as="select"
-                        name="smoking"
-                        value={newPatient.smoking}
-                        onChange={handleInputChange}
-                        isInvalid={!!errors.smoking}
-                    >
-                        <option value="">Select...</option>
-                        <option value="Non-smoker">Non-smoker</option>
-                        <option value="Former smoker">Former smoker</option>
-                        <option value="Current smoker">Current smoker</option>
-                    </Form.Control>
-                    <Form.Control.Feedback type="invalid">
-                        {errors.smoking}
-                    </Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group controlId="diabetes">
-                    <Form.Label>Diabetes</Form.Label>
-                    <Form.Control
-                        as="select"
-                        name="diabetes"
-                        value={newPatient.diabetes}
-                        onChange={handleInputChange}
-                        isInvalid={!!errors.diabetes}
-                    >
-                        <option value="">Select...</option>
-                        <option value="No">No</option>
-                        <option value="Yes, Type 1">Yes, Type 1</option>
-                        <option value="Yes, Type 2">Yes, Type 2</option>
-                    </Form.Control>
-                    <Form.Control.Feedback type="invalid">
-                        {errors.diabetes}
-                    </Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group controlId="bmi">
-                    <Form.Label>BMI (kg/m²)</Form.Label>
+                <Form.Group controlId="fastingBS">
+                    <Form.Label>Fasting Blood Sugar (mg/dL)</Form.Label>
                     <Form.Control
                         type="number"
-                        name="bmi"
-                        value={newPatient.bmi}
+                        name="fastingBS"
+                        value={newPatient.fastingBS}
                         onChange={handleInputChange}
-                        isInvalid={!!errors.bmi}
+                        isInvalid={!!errors.fastingBS}
                     />
                     <Form.Control.Feedback type="invalid">
-                        {errors.bmi}
+                        {errors.fastingBS}
+                    </Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group controlId="restingECG">
+                    <Form.Label>Resting Electrocardiographic Results</Form.Label>
+                    <Form.Control
+                        as="select"
+                        name="restingECG"
+                        value={newPatient.restingECG}
+                        onChange={handleInputChange}
+                        isInvalid={!!errors.restingECG}
+                    >
+                        <option value="">Select...</option>
+                        <option value="Normal">Normal</option>
+                        <option value="ST">ST</option>
+                        <option value="Hypertrophy">Hypertrophy</option>
+                    </Form.Control>
+                    <Form.Control.Feedback type="invalid">
+                        {errors.restingECG}
+                    </Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group controlId="maxHR">
+                    <Form.Label>Max Heart Rate Achieved</Form.Label>
+                    <Form.Control
+                        type="number"
+                        name="maxHR"
+                        value={newPatient.maxHR}
+                        onChange={handleInputChange}
+                        isInvalid={!!errors.maxHR}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                        {errors.maxHR}
+                    </Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group controlId="exerciseAngina">
+                    <Form.Label>Exercise Induced Angina</Form.Label>
+                    <Form.Control
+                        as="select"
+                        name="exerciseAngina"
+                        value={newPatient.exerciseAngina}
+                        onChange={handleInputChange}
+                        isInvalid={!!errors.exerciseAngina}
+                    >
+                        <option value="">Select...</option>
+                        <option value="Y">Yes</option>
+                        <option value="N">No</option>
+                    </Form.Control>
+                    <Form.Control.Feedback type="invalid">
+                        {errors.exerciseAngina}
+                    </Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group controlId="oldpeak">
+                    <Form.Label>Oldpeak (depression induced by exercise relative to rest)</Form.Label>
+                    <Form.Control
+                        type="number"
+                        step="0.1"
+                        name="oldpeak"
+                        value={newPatient.oldpeak}
+                        onChange={handleInputChange}
+                        isInvalid={!!errors.oldpeak}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                        {errors.oldpeak}
+                    </Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group controlId="stSlope">
+                    <Form.Label>ST Slope</Form.Label>
+                    <Form.Control
+                        as="select"
+                        name="stSlope"
+                        value={newPatient.stSlope}
+                        onChange={handleInputChange}
+                        isInvalid={!!errors.stSlope}
+                    >
+                        <option value="">Select...</option>
+                        <option value="Up">Up</option>
+                        <option value="Flat">Flat</option>
+                        <option value="Down">Down</option>
+                    </Form.Control>
+                    <Form.Control.Feedback type="invalid">
+                        {errors.stSlope}
                     </Form.Control.Feedback>
                 </Form.Group>
                 <Button variant="primary" onClick={handleAddPatient}>

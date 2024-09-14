@@ -57,12 +57,16 @@ function ResultsPage() {
     // Preparing data for charts
     const ages = updatedResults.map(result => result[0]);
     const genders = updatedResults.map(result => result[1]);
-    const bloodPressures = updatedResults.map(result => result[2]);
-    const cholesterols = updatedResults.map(result => result[3]);
-    const smokingStatuses = updatedResults.map(result => result[4]);
-    const diabetesStatuses = updatedResults.map(result => result[5]);
-    const bmis = updatedResults.map(result => result[6]);
-    const predictions = updatedResults.map(result => result[7]);
+    const chestPainTypes = updatedResults.map(result => result[2]);
+    const bloodPressures = updatedResults.map(result => result[3]);
+    const cholesterols = updatedResults.map(result => result[4]);
+    const fastingBS = updatedResults.map(result => result[5]);
+    const restingECGs = updatedResults.map(result => result[6]);
+    const maxHRs = updatedResults.map(result => result[7]);
+    const exerciseAnginas = updatedResults.map(result => result[8]);
+    const oldpeaks = updatedResults.map(result => result[9]);
+    const stSlopes = updatedResults.map(result => result[10]);
+    const predictions = updatedResults.map(result => result[11]);
 
     const countOccurrences = (array) => {
         return array.reduce((acc, value) => {
@@ -91,8 +95,8 @@ function ResultsPage() {
         datasets: [{
             label: 'Gender Distribution',
             data: Object.values(genderCounts),
-            backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
-            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+            backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)'],
+            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
             borderWidth: 1,
         }],
     };
@@ -121,13 +125,37 @@ function ResultsPage() {
         }],
     };
 
-    const smokingCounts = countOccurrences(smokingStatuses);
-    const smokingData = {
-        labels: Object.keys(smokingCounts),
+    const fastingBSData = {
+        labels: ['Fasting Blood Sugar'],
         datasets: [{
-            label: 'Cardiovascular Disease by Smoking Status',
-            data: Object.keys(smokingCounts).map(status => {
-                return updatedResults.filter((_, i) => smokingStatuses[i] === status).map(result => result[7]).reduce((acc, value) => {
+            label: 'Cardiovascular Disease',
+            data: fastingBS.map((bs, index) => ({ x: bs, y: predictions[index] })),
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+            showLine: false,
+        }],
+    };
+
+    const maxHRData = {
+        labels: ['Max Heart Rate'],
+        datasets: [{
+            label: 'Cardiovascular Disease',
+            data: maxHRs.map((hr, index) => ({ x: hr, y: predictions[index] })),
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1,
+            showLine: false,
+        }],
+    };
+
+    const exerciseAnginaCounts = countOccurrences(exerciseAnginas);
+    const exerciseAnginaData = {
+        labels: Object.keys(exerciseAnginaCounts),
+        datasets: [{
+            label: 'Cardiovascular Disease by Exercise Angina',
+            data: Object.keys(exerciseAnginaCounts).map(status => {
+                return updatedResults.filter((_, i) => exerciseAnginas[i] === status).map(result => result[11]).reduce((acc, value) => {
                     acc[value] = (acc[value] || 0) + 1;
                     return acc;
                 }, {});
@@ -138,32 +166,32 @@ function ResultsPage() {
         }],
     };
 
-    const diabetesCounts = countOccurrences(diabetesStatuses);
-    const diabetesData = {
-        labels: Object.keys(diabetesCounts),
+    const oldpeakData = {
+        labels: ['Oldpeak'],
         datasets: [{
-            label: 'Cardiovascular Disease by Diabetes Status',
-            data: Object.keys(diabetesCounts).map(status => {
-                return updatedResults.filter((_, i) => diabetesStatuses[i] === status).map(result => result[7]).reduce((acc, value) => {
+            label: 'Cardiovascular Disease',
+            data: oldpeaks.map((peak, index) => ({ x: peak, y: predictions[index] })),
+            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+            borderColor: 'rgba(153, 102, 255, 1)',
+            borderWidth: 1,
+            showLine: false,
+        }],
+    };
+
+    const stSlopeCounts = countOccurrences(stSlopes);
+    const stSlopeData = {
+        labels: Object.keys(stSlopeCounts),
+        datasets: [{
+            label: 'Cardiovascular Disease by ST Slope',
+            data: Object.keys(stSlopeCounts).map(status => {
+                return updatedResults.filter((_, i) => stSlopes[i] === status).map(result => result[11]).reduce((acc, value) => {
                     acc[value] = (acc[value] || 0) + 1;
                     return acc;
                 }, {});
             }),
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgba(255, 99, 132, 1)',
-            borderWidth: 1,
-        }],
-    };
-
-    const bmiData = {
-        labels: ['BMI'],
-        datasets: [{
-            label: 'Cardiovascular Disease',
-            data: bmis.map((bmi, index) => ({ x: bmi, y: predictions[index] })),
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 1,
-            showLine: false,
         }],
     };
 
@@ -195,11 +223,15 @@ function ResultsPage() {
                             <tr>
                                 <th>Age</th>
                                 <th>Gender</th>
+                                <th>Chest Pain Type</th>
                                 <th>Blood Pressure</th>
                                 <th>Cholesterol</th>
-                                <th>Smoking</th>
-                                <th>Diabetes</th>
-                                <th>BMI</th>
+                                <th>Fasting Blood Sugar</th>
+                                <th>Resting ECG</th>
+                                <th>Max Heart Rate</th>
+                                <th>Exercise Angina</th>
+                                <th>Oldpeak</th>
+                                <th>ST Slope</th>
                                 <th>Prediction</th>
                                 <th>Mark Correct</th>
                                 <th>Mark Incorrect</th>
@@ -209,7 +241,7 @@ function ResultsPage() {
                             {updatedResults.map((patient, index) => {
                                 const rowClass = patient.isMarkedCorrect
                                     ? 'table-success'
-                                    : patient[7] === 1
+                                    : patient[11] === 1
                                     ? ''
                                     : 'table-danger';
                                 return (
@@ -221,8 +253,12 @@ function ResultsPage() {
                                         <td>{patient[4]}</td>
                                         <td>{patient[5]}</td>
                                         <td>{patient[6]}</td>
+                                        <td>{patient[7]}</td>
+                                        <td>{patient[8]}</td>
+                                        <td>{patient[9]}</td>
+                                        <td>{patient[10]}</td>
                                         <td>
-                                            {patient[7] === 1
+                                            {patient[11] === 1
                                                 ? <strong>High Risk</strong>
                                                 : <strong>Low Risk</strong>}
                                         </td>
@@ -281,16 +317,24 @@ function ResultsPage() {
                             <Scatter data={cholesterolData} />
                         </div>
                         <div className="chart-container">
-                            <h4>Smoking Status vs. Cardiovascular Disease</h4>
-                            <Bar data={smokingData} />
+                            <h4>Fasting Blood Sugar vs. Cardiovascular Disease</h4>
+                            <Scatter data={fastingBSData} />
                         </div>
                         <div className="chart-container">
-                            <h4>Diabetes vs. Cardiovascular Disease</h4>
-                            <Bar data={diabetesData} />
+                            <h4>Max Heart Rate vs. Cardiovascular Disease</h4>
+                            <Scatter data={maxHRData} />
                         </div>
                         <div className="chart-container">
-                            <h4>BMI vs. Cardiovascular Disease</h4>
-                            <Scatter data={bmiData} />
+                            <h4>Exercise Angina vs. Cardiovascular Disease</h4>
+                            <Bar data={exerciseAnginaData} />
+                        </div>
+                        <div className="chart-container">
+                            <h4>Oldpeak vs. Cardiovascular Disease</h4>
+                            <Scatter data={oldpeakData} />
+                        </div>
+                        <div className="chart-container">
+                            <h4>ST Slope vs. Cardiovascular Disease</h4>
+                            <Bar data={stSlopeData} />
                         </div>
                     </div>
                 </div>
