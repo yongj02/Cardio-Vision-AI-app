@@ -18,14 +18,13 @@ const corsOptions = {
   credentials: true, // Allow credentials (if needed)
 };
 
-app.use(cors(corsOptions)); // Use cors middleware with options
-
+app.use(cors(corsOptions)); 
 app.use(express.json());
-app.use('/uploads', express.static('uploads')); // Serve uploaded files
 
+app.use('/uploads', express.static('uploads')); 
 app.use('/api/auth', authRoutes);
-app.use('/api/patient', patientRoutes);
-app.use('/api/datasets', datasetRoutes); // Use dataset routes
+app.use('/api/patients', patientRoutes);
+app.use('/api/datasets', datasetRoutes); 
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

@@ -1,12 +1,12 @@
-import React, { useState, useContext } from 'react';
-import { Button, Table, Collapse, Modal, Form } from 'react-bootstrap';
+import React, { useState, useContext, useEffect } from 'react';
+import { Button, Table, Collapse, Modal, Form, Alert } from 'react-bootstrap';
 import { AuthContext } from '../context/AuthContext'; 
 import axios from 'axios';
 import * as XLSX from 'xlsx'; 
 import { saveAs } from 'file-saver'; 
 
 function PredictionResults({ results, updatedResults, setUpdatedResults }) {
-    const { isLoggedIn, token } = useContext(AuthContext); // Get isLoggedIn from AuthContext
+    const { isLoggedIn } = useContext(AuthContext);
 
     const [openPredictions, setOpenPredictions] = useState(true);
     const [showSaveModal, setShowSaveModal] = useState(false);
@@ -15,19 +15,29 @@ function PredictionResults({ results, updatedResults, setUpdatedResults }) {
     const [exportFileName, setExportFileName] = useState('');
     const [filenameError, setFilenameError] = useState(false);
     const [errorSaving, setErrorSaving] = useState(false);
-    const [exportFormat, setExportFormat] = useState('csv'); // Default export format
+    const [exportFormat, setExportFormat] = useState('csv'); 
     const [editIndex, setEditIndex] = useState(null);
     const [newPrediction, setNewPrediction] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [alertMessage, setAlertMessage] = useState(''); // State for alert message
+    const [alertType, setAlertType] = useState('success'); // 'success' or 'danger'
+    const [showAlert, setShowAlert] = useState(false); // Control alert visibility
 
-    // Handle editing prediction
+    useEffect(() => {
+        if (showAlert) {
+            const timer = setTimeout(() => {
+                setShowAlert(false);
+            }, 3000); // Alert will be shown for 3 seconds
+            return () => clearTimeout(timer);
+        }
+    }, [showAlert]);
+
     const handleEditPrediction = (index) => {
         setEditIndex(index);
         setNewPrediction(updatedResults[index][11] === 1 ? 'High Risk' : 'Low Risk');
         setShowEditModal(true);
     };
 
-    // Save updated prediction
     const handleSaveEdit = () => {
         setUpdatedResults(prevResults => {
             const newResults = [...prevResults];
@@ -38,63 +48,64 @@ function PredictionResults({ results, updatedResults, setUpdatedResults }) {
         setEditIndex(null);
     };
 
-    // Save the record to the database
     const handleSaveRecord = async (recordName) => {
         if (!recordName.trim()) {
             setErrorSaving(true);
+            setAlertMessage('Please enter a valid record name.');
+            setAlertType('danger');
+            setShowAlert(true);
             return;
         }
-
+    
         setErrorSaving(false);
-
-        // Prepare the data to be sent to the backend
-        const patientData = updatedResults.map(row => ({
-            patientInfo: {
-                age: row[0],
-                gender: row[1],
-                chestPainType: row[2],
-                bloodPressure: row[3],
-                cholesterol: row[4],
-                fastingBloodSugar: row[5],
-                restingECG: row[6],
-                maxHeartRate: row[7],
-                exerciseAngina: row[8],
-                oldpeak: row[9],
-                stSlope: row[10]
-            },
+        setAlertMessage('');
+    
+        const patientInfos = updatedResults.map(row => ({
+            age: row[0],
+            gender: row[1],
+            chestPainType: row[2],
+            bloodPressure: row[3],
+            cholesterol: row[4],
+            fastingBloodSugar: row[5],
+            restingECG: row[6],
+            maxHeartRate: row[7],
+            exerciseAngina: row[8],
+            oldpeak: row[9],
+            stSlope: row[10],
             predictionOutcome: row[11] === 1 ? 'High Risk' : 'Low Risk'
         }));
 
         try {
-            const response = await axios.post('/api/patients/save', {
-                patientInfo: patientData[0].patientInfo,
-                predictionOutcome: patientData[0].predictionOutcome
+            const token = localStorage.getItem('token');
+            await axios.post('/api/patients/save', {
+                name: recordName,
+                patientInfos: patientInfos
             }, {
                 headers: {
-                    'Authorization': `Bearer ${token}`, // Send the user's token for authentication
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
 
-            console.log(response.data.message); // Handle success response
-            setShowSaveModal(false);
+            setAlertMessage('Record saved successfully!');
+            setAlertType('success');
         } catch (error) {
-            console.error(error);
-            setErrorSaving(true);
+            setAlertMessage('Failed to save record.');
+            setAlertType('danger');
+        } finally {
+            setShowAlert(true);
+            setShowSaveModal(false); // Close modal regardless of result
         }
     };
-
-    // Handle file name input change
+    
     const handleFileNameChange = (e) => {
         const newFileName = e.target.value;
         setExportFileName(newFileName);
-        // Clear filename error if input is valid
         if (newFileName.trim()) {
             setFilenameError(false);
         }
     };
 
-    // Export data as CSV or Excel
     const handleExport = (exportFileName, exportFormat) => {
         if (!exportFileName.trim()) {
             setFilenameError(true);
@@ -127,7 +138,6 @@ function PredictionResults({ results, updatedResults, setUpdatedResults }) {
         setShowExportModal(false);
     };
 
-    // Convert binary string to array buffer
     const s2ab = (s) => {
         const buf = new ArrayBuffer(s.length);
         const view = new Uint8Array(buf);
@@ -151,11 +161,18 @@ function PredictionResults({ results, updatedResults, setUpdatedResults }) {
 
             <Collapse in={openPredictions}>
                 <div id="collapsible-predictions">
+                    {/* Alert Notification */}
+                    {showAlert && (
+                        <Alert variant={alertType} dismissible onClose={() => setShowAlert(false)}>
+                            {alertMessage}
+                        </Alert>
+                    )}
+                    
                     <Button
                         variant="primary"
                         className="mb-3"
                         onClick={() => setShowSaveModal(true)}
-                        disabled={!isLoggedIn} // Disable if not logged in
+                        disabled={!isLoggedIn}
                     >
                         Save to Account
                     </Button>

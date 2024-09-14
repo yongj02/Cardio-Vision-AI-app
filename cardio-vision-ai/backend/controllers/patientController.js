@@ -1,49 +1,81 @@
 const Patient = require('../models/Patient');
+const PredictionResult = require('../models/PredictionResult');
 
+// Save multiple patients and create a new PredictionResult
 const savePatientData = async (req, res) => {
-  const { patientInfo, predictionOutcome } = req.body;
+  const { name, patientInfos } = req.body; // Expecting an array of patientInfos and a name for the prediction result
   try {
-    const patient = new Patient({
+    // Create and save each patient
+    const savedPatientIds = [];
+    for (const patientInfo of patientInfos) {
+      const patient = new Patient({ patientInfo });
+      await patient.save();
+      savedPatientIds.push(patient._id);
+    }
+
+    // Create and save a new PredictionResult
+    const predictionResult = new PredictionResult({
       user: req.user.id,
-      patientInfo,
-      predictionOutcome,
+      name,
+      savedPatients: savedPatientIds
     });
-    await patient.save();
-    res.status(201).json({ message: 'Patient data saved successfully' });
+    await predictionResult.save();
+
+    res.status(201).json({ message: 'Patient data saved successfully', predictionResult });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 
+// Delete a PredictionResult and all associated patients
 const deletePatientData = async (req, res) => {
   const { id } = req.params;
   try {
-    const patient = await Patient.findOneAndDelete({ _id: id, user: req.user.id });
-    if (!patient) {
-      return res.status(404).json({ error: 'Patient data not found' });
+    const predictionResult = await PredictionResult.findById(id).populate('savedPatients');
+    if (!predictionResult) {
+      return res.status(404).json({ error: 'PredictionResult not found' });
     }
-    res.status(200).json({ message: 'Patient data deleted successfully' });
+
+    // Delete associated patients
+    await Patient.deleteMany({ _id: { $in: predictionResult.savedPatients.map(patient => patient._id) } });
+
+    // Delete the PredictionResult
+    await PredictionResult.findByIdAndDelete(id);
+
+    res.status(200).json({ message: 'PredictionResult and associated patients deleted successfully' });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 
+// Update the name of a PredictionResult
 const updatePatientData = async (req, res) => {
   const { id } = req.params;
-  const { newName } = req.body; // Assuming newName is the field you want to update
+  const { name } = req.body; // Expecting updated name
+
   try {
-    const patient = await Patient.findOneAndUpdate(
-      { _id: id, user: req.user.id },
-      { $set: { 'patientInfo.name': newName } }, // Update the necessary field
+    const predictionResult = await PredictionResult.findByIdAndUpdate(
+      id,
+      { $set: { name } }, // Update the name field
       { new: true }
     );
-    if (!patient) {
-      return res.status(404).json({ error: 'Patient data not found' });
+    if (!predictionResult) {
+      return res.status(404).json({ error: 'PredictionResult not found' });
     }
-    res.status(200).json({ message: 'Patient data updated successfully', patient });
+    res.status(200).json({ message: 'PredictionResult updated successfully', predictionResult });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 
-module.exports = { savePatientData, deletePatientData, updatePatientData };
+// Retrieve all PredictionResults for the current user
+const getUserPredictionResults = async (req, res) => {
+  try {
+    const predictionResults = await PredictionResult.find({ user: req.user.id }).populate('savedPatients');
+    res.status(200).json(predictionResults);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+module.exports = { savePatientData, deletePatientData, updatePatientData, getUserPredictionResults };
