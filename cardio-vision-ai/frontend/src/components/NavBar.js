@@ -49,7 +49,7 @@ const Navbar = () => {
                         </li>
                         <li className="nav-item">
                             <button
-                                className={`btn ${isLoggedIn ? 'btn-secondary' : 'btn-primary'}`}
+                                className={`btn ${isLoggedIn ? 'btn-danger' : 'btn-primary'}`} // Changed to btn-danger
                                 onClick={handleAuthAction}
                             >
                                 {isLoggedIn ? 'Log Out' : 'Log In'}
@@ -72,7 +72,7 @@ const Navbar = () => {
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" onClick={handleLogoutCancel}>Cancel</button>
-                            <button type="button" className="btn btn-primary" onClick={handleLogoutConfirm}>Log Out</button>
+                            <button type="button" className="btn btn-danger" onClick={handleLogoutConfirm}>Log Out</button> {/* Changed to btn-danger */}
                         </div>
                     </div>
                 </div>
