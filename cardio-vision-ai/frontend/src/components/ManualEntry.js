@@ -74,7 +74,7 @@ const ManualEntry = ({ addPatient }) => {
     return (
         <div>
             <Form>
-                <Form.Group controlId="age" className="element-space-bottom">
+                <Form.Group controlId="age" className="mb-3">
                     <Form.Label>Age</Form.Label>
                     <Form.Control
                         type="number"
@@ -87,7 +87,7 @@ const ManualEntry = ({ addPatient }) => {
                         {errors.age}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="gender" className="element-space-bottom">
+                <Form.Group controlId="gender" className="mb-3">
                     <Form.Label>Gender</Form.Label>
                     <Form.Control
                         as="select"
@@ -105,7 +105,7 @@ const ManualEntry = ({ addPatient }) => {
                         {errors.gender}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="chestPainType" className="element-space-bottom">
+                <Form.Group controlId="chestPainType" className="mb-3">
                     <Form.Label>Chest Pain Type</Form.Label>
                     <Form.Control
                         as="select"
@@ -124,7 +124,7 @@ const ManualEntry = ({ addPatient }) => {
                         {errors.chestPainType}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="bloodPressure" className="element-space-bottom">
+                <Form.Group controlId="bloodPressure" className="mb-3">
                     <Form.Label>Blood Pressure (mmHg)</Form.Label>
                     <Form.Control
                         type="number"
@@ -137,7 +137,7 @@ const ManualEntry = ({ addPatient }) => {
                         {errors.bloodPressure}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="cholesterol" className="element-space-bottom">
+                <Form.Group controlId="cholesterol" className="mb-3">
                     <Form.Label>Cholesterol Levels (mg/dL)</Form.Label>
                     <Form.Control
                         type="number"
@@ -150,7 +150,7 @@ const ManualEntry = ({ addPatient }) => {
                         {errors.cholesterol}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="fastingBS" className="element-space-bottom">
+                <Form.Group controlId="fastingBS" className="mb-3">
                     <Form.Label>Fasting Blood Sugar (mg/dL)</Form.Label>
                     <Form.Control
                         type="number"
@@ -163,7 +163,7 @@ const ManualEntry = ({ addPatient }) => {
                         {errors.fastingBS}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="restingECG" className="element-space-bottom">
+                <Form.Group controlId="restingECG" className="mb-3">
                     <Form.Label>Resting Electrocardiographic Results</Form.Label>
                     <Form.Control
                         as="select"
@@ -181,7 +181,7 @@ const ManualEntry = ({ addPatient }) => {
                         {errors.restingECG}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="maxHR" className="element-space-bottom">
+                <Form.Group controlId="maxHR" className="mb-3">
                     <Form.Label>Max Heart Rate Achieved</Form.Label>
                     <Form.Control
                         type="number"
@@ -194,7 +194,7 @@ const ManualEntry = ({ addPatient }) => {
                         {errors.maxHR}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="exerciseAngina" className="element-space-bottom">
+                <Form.Group controlId="exerciseAngina" className="mb-3">
                     <Form.Label>Exercise Induced Angina</Form.Label>
                     <Form.Control
                         as="select"
@@ -211,7 +211,7 @@ const ManualEntry = ({ addPatient }) => {
                         {errors.exerciseAngina}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="oldpeak" className="element-space-bottom">
+                <Form.Group controlId="oldpeak" className="mb-3">
                     <Form.Label>Oldpeak (depression induced by exercise relative to rest)</Form.Label>
                     <Form.Control
                         type="number"
@@ -225,7 +225,7 @@ const ManualEntry = ({ addPatient }) => {
                         {errors.oldpeak}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="stSlope" className="element-space-bottom">
+                <Form.Group controlId="stSlope" className="mb-3">
                     <Form.Label>ST Slope</Form.Label>
                     <Form.Control
                         as="select"
@@ -243,7 +243,7 @@ const ManualEntry = ({ addPatient }) => {
                         {errors.stSlope}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Button className="element-space-bottom" variant="primary" onClick={handleAddPatient}>
+                <Button className="mb-3" variant="primary" onClick={handleAddPatient}>
                     Add Patient
                 </Button>
             </Form>

@@ -18,7 +18,7 @@ function HomePage() {
                     <p><a href="/prediction" className="btn btn-primary">Get Started Without Signing Up</a></p>
                     <hr />
                     <p>
-                        <a href="/login" className="btn btn-primary element-space-right">Log In</a>
+                        <a href="/login" className="btn btn-primary mr-2">Log In</a>
                         <a href="/signup" className="btn btn-secondary">Create Account</a>
                     </p>
                 </>

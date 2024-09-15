@@ -213,7 +213,7 @@ function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved
                     {isSaved ? (
                         <Button
                             variant="primary"
-                            className="mb-3 element-space-right"
+                            className="mb-3 mr-2"
                             onClick={() => handleUpdateRecord(results._id)} // Adjust based on how you manage record ID
                         >
                             Update Result
@@ -221,7 +221,7 @@ function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved
                     ) : (
                         <Button
                             variant="primary"
-                            className="mb-3 element-space-right"
+                            className="mb-3 mr-2"
                             onClick={() => setShowSaveModal(true)}
                             disabled={!isLoggedIn}
                         >

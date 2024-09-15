@@ -35,11 +35,3 @@
 .custom-accordion-header:hover {
     background-color: #5a6268; /* Darker gray on hover */
 }
-
-.element-space-bottom {
-    margin-bottom: 10px;
-}
-
-.element-space-right {
-    margin-right: 10px;
-}

@@ -110,7 +110,7 @@ const PredictionPage = () => {
                 Required Variables for Prediction
             </Button>
             <Collapse in={showExplanation}>
-                <div id="explanation-collapse" className="mb-4">
+                <div id="explanation-collapse" className="mb-3">
                     <p>
                         To make predictions, your dataset must include the following columns with exact names and data types:
                     </p>
@@ -312,7 +312,7 @@ const PredictionPage = () => {
                         </div>
                     </Collapse>
 
-                    <Button variant="success" className="w-100 mt-3 element-space-bottom" onClick={handlePredict}>
+                    <Button variant="success" className="w-100 mt-3 mb-3" onClick={handlePredict}>
                         Predict
                     </Button>
                 </>

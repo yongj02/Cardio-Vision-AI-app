@@ -104,7 +104,7 @@ const FileUploader = ({ onFileProcessed }) => {
     return (
         <div>
             <div
-                {...getRootProps({ className: 'dropzone element-space-bottom' })}
+                {...getRootProps({ className: 'dropzone mb-3' })}
             >
                 <input {...getInputProps()} />
                 Drag & drop your dataset here, or click to select files
