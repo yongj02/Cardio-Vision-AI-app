@@ -60,7 +60,7 @@ const LoginPage = () => {
                 </div>
             )}
             <Form onSubmit={handleLogin}>
-                <Form.Group controlId="username">
+                <Form.Group controlId="username" className="element-space-bottom">
                     <Form.Label>Username</Form.Label>
                     <Form.Control
                         type="text"
@@ -73,7 +73,7 @@ const LoginPage = () => {
                         {errors.username}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="password">
+                <Form.Group controlId="password" className="element-space-bottom">
                     <Form.Label>Password</Form.Label>
                     <Form.Control
                         type="password"

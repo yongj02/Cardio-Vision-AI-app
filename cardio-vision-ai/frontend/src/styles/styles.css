@@ -36,10 +36,10 @@
     background-color: #5a6268; /* Darker gray on hover */
 }
 
-.btn-space {
-    margin-right: 10px; /* Space after a button */
+.element-space-bottom {
+    margin-bottom: 10px;
 }
 
-.tab-space {
-    padding-left: 1em; /* Acts as a tab space */
+.element-space-right {
+    margin-right: 10px;
 }

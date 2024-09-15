@@ -64,7 +64,7 @@ const Signup = () => {
                 </div>
             )}
             <Form onSubmit={handleSubmit}>
-                <Form.Group controlId="name">
+                <Form.Group controlId="name" className="element-space-bottom">
                     <Form.Label>Name</Form.Label>
                     <Form.Control
                         type="text"
@@ -77,7 +77,7 @@ const Signup = () => {
                         {errors.name}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="username">
+                <Form.Group controlId="username" className="element-space-bottom">
                     <Form.Label>Username</Form.Label>
                     <Form.Control
                         type="text"
@@ -90,7 +90,7 @@ const Signup = () => {
                         {errors.username}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="password">
+                <Form.Group controlId="password" className="element-space-bottom">
                     <Form.Label>Password</Form.Label>
                     <Form.Control
                         type="password"

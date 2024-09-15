@@ -104,10 +104,10 @@ const FileUploader = ({ onFileProcessed }) => {
     return (
         <div>
             <div
-                {...getRootProps({ className: 'dropzone' })}
+                {...getRootProps({ className: 'dropzone element-space-bottom' })}
             >
                 <input {...getInputProps()} />
-                <p>Drag & drop your dataset here, or click to select files</p>
+                Drag & drop your dataset here, or click to select files
             </div>
             {fileError && <Alert variant="danger" className="mt-2">{fileError}</Alert>}
             {uploadError && <Alert variant="danger" className="mt-2">{uploadError}</Alert>}

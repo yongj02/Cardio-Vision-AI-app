@@ -151,7 +151,7 @@ const PredictionPage = () => {
                             <tr>
                                 <td>FastingBS</td>
                                 <td>0</td>
-                                <td>Fasting blood sugar level: 1 if > 120 mg/dl, 0 otherwise.</td>
+                                <td>Fasting blood sugar level: 1 if {'>'} 120 mg/dl, 0 otherwise.</td>
                             </tr>
                             <tr>
                                 <td>RestingECG</td>
@@ -312,7 +312,7 @@ const PredictionPage = () => {
                         </div>
                     </Collapse>
 
-                    <Button variant="success" className="w-100 mt-3" onClick={handlePredict}>
+                    <Button variant="success" className="w-100 mt-3 element-space-bottom" onClick={handlePredict}>
                         Predict
                     </Button>
                 </>
