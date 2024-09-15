@@ -223,7 +223,7 @@ const PredictionPage = () => {
                         Upload Own Dataset
                     </Button>
                     <Collapse in={showUpload}>
-                        <div id="upload-collapse" className="mt-3">
+                        <div id="upload-collapse">
                             <FileUploader onFileProcessed={handleFileProcessed} />
                         </div>
                     </Collapse>
@@ -238,7 +238,7 @@ const PredictionPage = () => {
                         Manually Enter Patient Data
                     </Button>
                     <Collapse in={showManualEntry}>
-                        <div id="manual-collapse" className="mt-3">
+                        <div id="manual-collapse">
                             <ManualEntry addPatient={handleFileProcessed} />
                         </div>
                     </Collapse>
@@ -252,7 +252,7 @@ const PredictionPage = () => {
                         {showPatients ? 'Hide Added Patients' : 'Show Added Patients'}
                     </Button>
                     <Collapse in={showPatients}>
-                        <div className="mt-3">
+                        <div>
                             <Button
                                 variant="danger"
                                 className="w-100 mb-2"
@@ -312,7 +312,7 @@ const PredictionPage = () => {
                         </div>
                     </Collapse>
 
-                    <Button variant="success" className="w-100 mt-3 mb-3" onClick={handlePredict}>
+                    <Button variant="success" className="w-100 mb-3" onClick={handlePredict}>
                         Predict
                     </Button>
                 </>
