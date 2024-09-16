@@ -10,6 +10,7 @@ import '../styles/styles.css';
 const PredictionPage = () => {
     const [datasets, setDatasets] = useState([]);
     const [selectedDataset, setSelectedDataset] = useState(null);
+    const [activeButton, setActiveButton] = useState(null);
     const [showDatabase, setShowDatabase] = useState(false);
     const [showUpload, setShowUpload] = useState(false);
     const [showManualEntry, setShowManualEntry] = useState(false);
@@ -29,9 +30,19 @@ const PredictionPage = () => {
     }, []);
 
     const handleCollapse = (type) => {
-        setShowDatabase(type === 'database');
-        setShowUpload(type === 'upload');
-        setShowManualEntry(type === 'manual');
+        if (activeButton === type) {
+            // If the same button is clicked, collapse it
+            setActiveButton(null);
+            setShowDatabase(false);
+            setShowUpload(false);
+            setShowManualEntry(false);
+        } else {
+            // Otherwise, open the clicked section and close others
+            setActiveButton(type);
+            setShowDatabase(type === 'database');
+            setShowUpload(type === 'upload');
+            setShowManualEntry(type === 'manual');
+        }
     };
 
     const handlePredict = async () => {
@@ -200,7 +211,7 @@ const PredictionPage = () => {
                 <>
                     <Button
                         variant="primary"
-                        className="w-100 mb-2"
+                        className="w-100 mb-2 mt-3"
                         onClick={() => handleCollapse('database')}
                         aria-controls="database-collapse"
                         aria-expanded={showDatabase}
@@ -246,7 +257,7 @@ const PredictionPage = () => {
                     {/* Added Patients Section */}
                     <Button
                         variant="secondary"
-                        className="w-100 mb-2"
+                        className="w-100 mb-2 mt-3"
                         onClick={() => setShowPatients(!showPatients)}
                     >
                         {showPatients ? 'Hide Added Patients' : 'Show Added Patients'}
@@ -312,7 +323,7 @@ const PredictionPage = () => {
                         </div>
                     </Collapse>
 
-                    <Button variant="success" className="w-100 mb-3" onClick={handlePredict}>
+                    <Button variant="success" className="w-100 mb-2 mt-3" onClick={handlePredict}>
                         Predict
                     </Button>
                 </>
