@@ -236,7 +236,7 @@ function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved
                     >
                         Export Table
                     </Button>
-                    <Table className="table table-striped">
+                    <Table className="table table-striped table-hover">
                         <thead>
                             <tr>
                                 <th>Age</th>

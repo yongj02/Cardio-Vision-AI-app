@@ -11,6 +11,7 @@ const makePrediction = async (req, res) => {
       prediction: predictedValue === 1 ? 'Heart Disease' : 'No Heart Disease',
     });
   } catch (error) {
+    console.error('Error making prediction:', error);
     res.status(500).json({ error: error.message });
   }
 };
