@@ -10,7 +10,20 @@ const FileUploader = ({ onFileProcessed }) => {
     const [uploadError, setUploadError] = useState('');
     const [uploadSuccess, setUploadSuccess] = useState('');
     
-    const requiredColumns = ['age', 'gender', 'blood pressure', 'cholesterol levels', 'smoking status', 'diabetes', 'BMI'];
+    const requiredColumns = [
+        'Age',
+        'Sex',
+        'ChestPainType',
+        'RestingBP',
+        'Cholesterol',
+        'FastingBS',
+        'RestingECG',
+        'MaxHR',
+        'ExerciseAngina',
+        'Oldpeak',
+        'ST_Slope'
+    ];
+    
 
     const handleDrop = (acceptedFiles) => {
         processFile(acceptedFiles[0]);
@@ -42,14 +55,19 @@ const FileUploader = ({ onFileProcessed }) => {
             }
 
             const headerMap = {
-                'age': 'age',
-                'gender': 'gender',
-                'blood pressure': 'blood pressure',
-                'cholesterol levels': 'cholesterol levels',
-                'smoking status': 'smoking status',
-                'diabetes': 'diabetes',
-                'BMI': 'BMI'
+                'Age': 'Age',
+                'Sex': 'Sex',
+                'ChestPainType': 'ChestPainType',
+                'RestingBP': 'RestingBP',
+                'Cholesterol': 'Cholesterol',
+                'FastingBS': 'FastingBS',
+                'RestingECG': 'RestingECG',
+                'MaxHR': 'MaxHR',
+                'ExerciseAngina': 'ExerciseAngina',
+                'Oldpeak': 'Oldpeak',
+                'ST_Slope': 'ST_Slope'
             };
+            
 
             const headerIndices = requiredColumns.reduce((acc, col) => {
                 const index = headers.indexOf(col);
@@ -86,10 +104,10 @@ const FileUploader = ({ onFileProcessed }) => {
     return (
         <div>
             <div
-                {...getRootProps({ className: 'dropzone' })}
+                {...getRootProps({ className: 'dropzone mb-3' })}
             >
                 <input {...getInputProps()} />
-                <p>Drag & drop your dataset here, or click to select files</p>
+                Drag & drop your dataset here, or click to select files
             </div>
             {fileError && <Alert variant="danger" className="mt-2">{fileError}</Alert>}
             {uploadError && <Alert variant="danger" className="mt-2">{uploadError}</Alert>}

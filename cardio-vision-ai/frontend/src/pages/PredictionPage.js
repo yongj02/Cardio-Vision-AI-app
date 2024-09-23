@@ -10,6 +10,7 @@ import '../styles/styles.css';
 const PredictionPage = () => {
     const [datasets, setDatasets] = useState([]);
     const [selectedDataset, setSelectedDataset] = useState(null);
+    const [activeButton, setActiveButton] = useState(null);
     const [showDatabase, setShowDatabase] = useState(false);
     const [showUpload, setShowUpload] = useState(false);
     const [showManualEntry, setShowManualEntry] = useState(false);
@@ -21,6 +22,7 @@ const PredictionPage = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
     const [patientToDelete, setPatientToDelete] = useState(null);
+    const [showExplanation, setShowExplanation] = useState(false); // New state for explanation collapse
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -28,9 +30,19 @@ const PredictionPage = () => {
     }, []);
 
     const handleCollapse = (type) => {
-        setShowDatabase(type === 'database');
-        setShowUpload(type === 'upload');
-        setShowManualEntry(type === 'manual');
+        if (activeButton === type) {
+            // If the same button is clicked, collapse it
+            setActiveButton(null);
+            setShowDatabase(false);
+            setShowUpload(false);
+            setShowManualEntry(false);
+        } else {
+            // Otherwise, open the clicked section and close others
+            setActiveButton(type);
+            setShowDatabase(type === 'database');
+            setShowUpload(type === 'upload');
+            setShowManualEntry(type === 'manual');
+        }
     };
 
     const handlePredict = async () => {
@@ -98,6 +110,93 @@ const PredictionPage = () => {
         <div className="container">
             <h2>Make Predictions</h2>
 
+            {/* Collapsible Explanation Section */}
+            <Button
+                variant="info"
+                className="w-100 mb-2"
+                onClick={() => setShowExplanation(!showExplanation)}
+                aria-controls="explanation-collapse"
+                aria-expanded={showExplanation}
+            >
+                Required Variables for Prediction
+            </Button>
+            <Collapse in={showExplanation}>
+                <div id="explanation-collapse" className="mb-3">
+                    <p>
+                        To make predictions, your dataset must include the following columns with exact names and data types:
+                    </p>
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                                <th>Variable</th>
+                                <th>Example Value</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Age</td>
+                                <td>45</td>
+                                <td>Patient's age in years.</td>
+                            </tr>
+                            <tr>
+                                <td>Sex</td>
+                                <td>M</td>
+                                <td>Patient's sex: M (male) or F (female).</td>
+                            </tr>
+                            <tr>
+                                <td>ChestPainType</td>
+                                <td>ATA</td>
+                                <td>Type of chest pain experienced by the patient: ATA (typical angina), NAP (non-anginal pain), etc.</td>
+                            </tr>
+                            <tr>
+                                <td>RestingBP</td>
+                                <td>120</td>
+                                <td>Resting blood pressure in mm Hg.</td>
+                            </tr>
+                            <tr>
+                                <td>Cholesterol</td>
+                                <td>210</td>
+                                <td>Serum cholesterol level in mg/dl.</td>
+                            </tr>
+                            <tr>
+                                <td>FastingBS</td>
+                                <td>0</td>
+                                <td>Fasting blood sugar level: 1 if {'>'} 120 mg/dl, 0 otherwise.</td>
+                            </tr>
+                            <tr>
+                                <td>RestingECG</td>
+                                <td>Normal</td>
+                                <td>Results of resting electrocardiographic measurement: Normal, ST, etc.</td>
+                            </tr>
+                            <tr>
+                                <td>MaxHR</td>
+                                <td>150</td>
+                                <td>Maximum heart rate achieved during exercise.</td>
+                            </tr>
+                            <tr>
+                                <td>ExerciseAngina</td>
+                                <td>N</td>
+                                <td>Exercise induced angina: Y (yes) or N (no).</td>
+                            </tr>
+                            <tr>
+                                <td>Oldpeak</td>
+                                <td>1.0</td>
+                                <td>Depression induced by exercise relative to rest.</td>
+                            </tr>
+                            <tr>
+                                <td>ST_Slope</td>
+                                <td>Up</td>
+                                <td>Slope of the peak exercise ST segment: Up, Flat, Down.</td>
+                            </tr>
+                        </tbody>
+                    </Table>
+                    <p className="text-danger">
+                        <strong>Note:</strong> The column names in your dataset must exactly match those listed above.
+                    </p>
+                </div>
+            </Collapse>
+
             {/* Error and Progress Indicators */}
             {error && <Alert variant="danger">{error}</Alert>}
             {loading && (
@@ -112,7 +211,7 @@ const PredictionPage = () => {
                 <>
                     <Button
                         variant="primary"
-                        className="w-100 mb-2"
+                        className="w-100 mb-2 mt-3"
                         onClick={() => handleCollapse('database')}
                         aria-controls="database-collapse"
                         aria-expanded={showDatabase}
@@ -121,7 +220,7 @@ const PredictionPage = () => {
                     </Button>
                     <Collapse in={showDatabase}>
                         <div id="database-collapse">
-                            <DatabaseSelector datasets={datasets} setSelectedDataset={setSelectedDataset} />
+                            <DatabaseSelector addPatients={handleFileProcessed} />
                         </div>
                     </Collapse>
 
@@ -135,7 +234,7 @@ const PredictionPage = () => {
                         Upload Own Dataset
                     </Button>
                     <Collapse in={showUpload}>
-                        <div id="upload-collapse" className="mt-3">
+                        <div id="upload-collapse">
                             <FileUploader onFileProcessed={handleFileProcessed} />
                         </div>
                     </Collapse>
@@ -150,7 +249,7 @@ const PredictionPage = () => {
                         Manually Enter Patient Data
                     </Button>
                     <Collapse in={showManualEntry}>
-                        <div id="manual-collapse" className="mt-3">
+                        <div id="manual-collapse">
                             <ManualEntry addPatient={handleFileProcessed} />
                         </div>
                     </Collapse>
@@ -158,13 +257,13 @@ const PredictionPage = () => {
                     {/* Added Patients Section */}
                     <Button
                         variant="secondary"
-                        className="w-100 mb-2"
+                        className="w-100 mb-2 mt-3"
                         onClick={() => setShowPatients(!showPatients)}
                     >
                         {showPatients ? 'Hide Added Patients' : 'Show Added Patients'}
                     </Button>
                     <Collapse in={showPatients}>
-                        <div className="mt-3">
+                        <div>
                             <Button
                                 variant="danger"
                                 className="w-100 mb-2"
@@ -180,12 +279,16 @@ const PredictionPage = () => {
                                     <thead>
                                         <tr>
                                             <th>Age</th>
-                                            <th>Gender</th>
-                                            <th>Blood Pressure</th>
-                                            <th>Cholesterol Levels</th>
-                                            <th>Smoking Status</th>
-                                            <th>Diabetes</th>
-                                            <th>BMI</th>
+                                            <th>Sex</th>
+                                            <th>Chest Pain Type</th>
+                                            <th>Resting BP</th>
+                                            <th>Cholesterol</th>
+                                            <th>Fasting BS</th>
+                                            <th>Resting ECG</th>
+                                            <th>Max HR</th>
+                                            <th>Exercise Angina</th>
+                                            <th>Oldpeak</th>
+                                            <th>ST Slope</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -199,6 +302,10 @@ const PredictionPage = () => {
                                                 <td>{patient[4]}</td>
                                                 <td>{patient[5]}</td>
                                                 <td>{patient[6]}</td>
+                                                <td>{patient[7]}</td>
+                                                <td>{patient[8]}</td>
+                                                <td>{patient[9]}</td>
+                                                <td>{patient[10]}</td>
                                                 <td>
                                                     <Button
                                                         variant="danger"
@@ -216,7 +323,7 @@ const PredictionPage = () => {
                         </div>
                     </Collapse>
 
-                    <Button variant="success" className="w-100 mt-3" onClick={handlePredict}>
+                    <Button variant="success" className="w-100 mb-2 mt-3" onClick={handlePredict}>
                         Predict
                     </Button>
                 </>
