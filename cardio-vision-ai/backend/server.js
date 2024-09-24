@@ -4,6 +4,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const patientRoutes = require('./routes/patientRoutes');
 const datasetRoutes = require('./routes/datasetRoutes'); // Import dataset routes
+const predictRoutes = require('./routes/predictionRoutes');
 const cors = require('cors'); // Import cors
 
 dotenv.config();
@@ -24,7 +25,8 @@ app.use(express.json());
 app.use('/uploads', express.static('uploads')); 
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientRoutes);
-app.use('/api/datasets', datasetRoutes); 
+app.use('/api/datasets', datasetRoutes);
+app.use('/api', predictRoutes);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

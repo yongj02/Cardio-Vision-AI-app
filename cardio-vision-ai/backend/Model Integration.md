@@ -1,12 +1,12 @@
 # Cardiovascular Disease Prediction Model Integration
 
-This guide provides instructions on integrating a pre-trained deep learning model to predict whether a patient has cardiovascular disease based on specific attributes. The model is saved in a `.h5` format and can be used with a Node.js and Express backend and a React frontend.
+This guide provides instructions on integrating a pre-trained deep learning model to predict whether a patient has cardiovascular disease based on specific attributes. The model is saved in a `.json` format and can be used with a Node.js and Express backend and a React frontend.
 
 ## Prerequisites
 
 - Node.js and npm installed
 - Basic understanding of JavaScript, Node.js, and Express
-- The `.h5` model file downloaded
+- The `.json` model file downloaded
 
 ## Step 1: Install TensorFlow.js
 
@@ -18,14 +18,14 @@ npm install @tensorflow/tfjs-node
 
 ## Step 2: Loading the Model
 
-Use the following code snippet to load the model from the `.h5` file. Ensure that the model is saved in the same directory as your server code or provide the correct path.
+Use the following code snippet to load the model from the `.json` file. Ensure that the model is saved in the same directory as your server code or provide the correct path.
 
 ```javascript
 const tf = require("@tensorflow/tfjs-node");
 
 // Load the pre-trained model
 async function loadModel() {
-  const model = await tf.loadLayersModel("file://path/to/your/model.h5");
+  const model = await tf.loadLayersModel("file://path/to/your/model.json");
   console.log("Model loaded successfully");
   return model;
 }
