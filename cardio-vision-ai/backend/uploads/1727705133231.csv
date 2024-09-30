@@ -1,0 +1,6 @@
+Age,Sex,ChestPainType,RestingBP,Cholesterol,FastingBS,RestingECG,MaxHR,ExerciseAngina,Oldpeak,ST_Slope
+45,Male,TA,130,230,0,Normal,150,No,1.0,Up
+54,Female,ATA,140,250,1,ST,160,Yes,2.5,Flat
+60,Male,NAP,120,210,0,Hypertrophy,140,No,1.2,Down
+37,Female,ASY,110,200,0,Normal,170,No,0.5,Up
+50,Male,TA,135,240,1,ST,155,Yes,1.8,Flat

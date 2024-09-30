@@ -8,8 +8,6 @@ import ManualEntry from '../components/ManualEntry';
 import '../styles/styles.css';
 
 const PredictionPage = () => {
-    const [datasets, setDatasets] = useState([]);
-    const [selectedDataset, setSelectedDataset] = useState(null);
     const [activeButton, setActiveButton] = useState(null);
     const [showDatabase, setShowDatabase] = useState(false);
     const [showUpload, setShowUpload] = useState(false);
