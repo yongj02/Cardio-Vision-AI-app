@@ -57,7 +57,7 @@ let model;
 const loadModel = async () => {
   if (!model) {
     try {
-      model = await tf.loadLayersModel('file://trainedModels/model.json');
+      model = await tf.loadLayersModel('file://trainedModels/model1/model.json');
       console.log('Model loaded successfully');
     } catch (error) {
       console.error('Error loading model:', error);
