@@ -12,8 +12,10 @@ const makePrediction = async (req, res) => {
       const inputTensor = preprocessInput(patient);  // Pass patient data to the preprocessing function
       const reshapedTensor = inputTensor.reshape([1, 20, 1]);
       const prediction = model.predict(reshapedTensor);
-      const predictedValue = await prediction.data();
-      predictedPatients.push({...patient, prediction: Math.round(predictedValue[1])});
+      const threshold = 0.866;
+      const predictedValue = (await prediction.data())[1] <= threshold ? 1 : 0;
+      predictedPatients.push({...patient, prediction: predictedValue});
+      console.log(predictedValue);
     }
     res.json({
       predictedPatients
