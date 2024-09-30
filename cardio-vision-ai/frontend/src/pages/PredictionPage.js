@@ -51,13 +51,26 @@ const PredictionPage = () => {
 
         try {
             // Commenting out the API call
-            // const response = await axios.post('/api/predictions', {
-            //     patients: patients, // Pass patients data to backend
-            // });
+            const response = await axios.post('/api/predict', {
+                patients: patients.map((patient) => {
+                    return {
+                        age: patient[0],
+                        gender: patient[1],
+                        chestPainType: patient[2],
+                        restingBP: patient[3],
+                        cholesterol: patient[4],
+                        fastingBS: patient[5],
+                        restingECG: patient[6],
+                        maxHR: patient[7],
+                        exerciseAngina: patient[8],
+                        oldpeak: patient[9],
+                        stSlope: patient[10],
+                    }
+                }), // Pass patients data to backend
+            });
 
             // Add a value of 1 to each patient, assuming they have cardiovascular disease
-            const modifiedPatients = patients.map(patient => [...patient, 1]);
-
+            const modifiedPatients = response.data.predictedPatients.map(predictedPatient => Object.values(predictedPatient));
             setProgress(100); // Progress complete
 
             // Navigate to the results page with the modified patients data
@@ -70,7 +83,6 @@ const PredictionPage = () => {
     };
 
     const handleFileProcessed = (newPatients) => {
-        console.log(newPatients);
         if (Array.isArray(newPatients)) {
             setPatients(prevPatients => [...prevPatients, ...newPatients]);
         } else {

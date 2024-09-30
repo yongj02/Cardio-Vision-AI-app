@@ -26,7 +26,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/datasets', datasetRoutes);
-app.use('/api', predictRoutes);
+app.use('/api/predict', predictRoutes);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

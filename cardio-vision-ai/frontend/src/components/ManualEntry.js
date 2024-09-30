@@ -6,7 +6,7 @@ const ManualEntry = ({ addPatient }) => {
         age: '',
         gender: '',
         chestPainType: '',
-        bloodPressure: '',
+        restingBP: '',
         cholesterol: '',
         fastingBS: '',
         restingECG: '',
@@ -44,7 +44,7 @@ const ManualEntry = ({ addPatient }) => {
                 Number(newPatient.age),
                 newPatient.gender,
                 newPatient.chestPainType,
-                Number(newPatient.bloodPressure),
+                Number(newPatient.restingBP),
                 Number(newPatient.cholesterol),
                 Number(newPatient.fastingBS),
                 newPatient.restingECG,
@@ -57,7 +57,7 @@ const ManualEntry = ({ addPatient }) => {
                 age: '',
                 gender: '',
                 chestPainType: '',
-                bloodPressure: '',
+                restingBP: '',
                 cholesterol: '',
                 fastingBS: '',
                 restingECG: '',
@@ -124,17 +124,17 @@ const ManualEntry = ({ addPatient }) => {
                         {errors.chestPainType}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="bloodPressure" className="mb-3">
-                    <Form.Label>Blood Pressure (mmHg)</Form.Label>
+                <Form.Group controlId="restingBP" className="mb-3">
+                    <Form.Label>Resting Blood Pressure (mmHg)</Form.Label>
                     <Form.Control
                         type="number"
-                        name="bloodPressure"
-                        value={newPatient.bloodPressure}
+                        name="restingBP"
+                        value={newPatient.restingBP}
                         onChange={handleInputChange}
-                        isInvalid={!!errors.bloodPressure}
+                        isInvalid={!!errors.restingBP}
                     />
                     <Form.Control.Feedback type="invalid">
-                        {errors.bloodPressure}
+                        {errors.restingBP}
                     </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group controlId="cholesterol" className="mb-3">

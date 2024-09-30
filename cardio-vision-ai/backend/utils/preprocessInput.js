@@ -5,65 +5,67 @@ function preprocessInput(data) {
   // Normalise numerical values
   const minAge = 28;
   const maxAge = 77;
-  data.Age = (data.Age - minAge) / (maxAge - minAge);
+  const age = (data.age - minAge) / (maxAge - minAge);
 
   const minRestingBP = 0;
   const maxRestingBP = 200;
-  data.RestingBP = (data.RestingBP - minRestingBP) / (maxRestingBP - minRestingBP);
+  const restingBP = (data.restingBP - minRestingBP) / (maxRestingBP - minRestingBP);
 
   const minCholesterol = 0;
   const maxCholesterol = 603;
-  data.Cholesterol = (data.Cholesterol - minCholesterol) / (maxCholesterol - minCholesterol);
+  const cholesterol = (data.cholesterol - minCholesterol) / (maxCholesterol - minCholesterol);
 
   const minMaxHR = 60;
   const maxMaxHR = 202;
-  data.MaxHR = (data.MaxHR - minMaxHR) / (maxMaxHR - minMaxHR);
+  const maxHR = (data.maxHR - minMaxHR) / (maxMaxHR - minMaxHR);
 
   const minOldpeak = -2.6;
   const maxOldpeak = 6.2;
-  data.Oldpeak = (data.Oldpeak - minOldpeak) / (maxOldpeak - minOldpeak);
+  const oldpeak = (data.oldpeak - minOldpeak) / (maxOldpeak - minOldpeak);
+
+  const fastingBS = data.fastingBS;
 
   // OneHotEncoding non-numerical attributes
   const encodedData = {
-    Sex_M: data.Sex === 'M' ? 1 : 0,
-    Sex_F: data.Sex === 'F' ? 1 : 0,
-    ChestPainType_ATA: data.ChestPainType === 'ATA' ? 1 : 0,
-    ChestPainType_NAP: data.ChestPainType === 'NAP' ? 1 : 0,
-    ChestPainType_ASY: data.ChestPainType === 'ASY' ? 1 : 0,
-    ChestPainType_TA: data.ChestPainType === 'TA' ? 1 : 0,
-    RestingECG_Normal: data.RestingECG === 'Normal' ? 1 : 0,
-    RestingECG_ST: data.RestingECG === 'ST' ? 1 : 0,
-    RestingECG_LVH: data.RestingECG === 'LVH' ? 1 : 0,
-    ExerciseAngina_N: data.ExerciseAngina === 'N' ? 1 : 0,
-    ExerciseAngina_Y: data.ExerciseAngina === 'Y' ? 1 : 0,
-    ST_Slope_Up: data.ST_Slope === 'Up' ? 1 : 0,
-    ST_Slope_Flat: data.ST_Slope === 'Flat' ? 1 : 0,
-    ST_Slope_Down: data.ST_Slope === 'Down' ? 1 : 0,
+    sex_M: data.gender === 'M' ? 1 : 0,
+    sex_F: data.gender === 'F' ? 1 : 0,
+    chestPainType_ATA: data.chestPainType === 'ATA' ? 1 : 0,
+    chestPainType_NAP: data.chestPainType === 'NAP' ? 1 : 0,
+    chestPainType_ASY: data.chestPainType === 'ASY' ? 1 : 0,
+    chestPainType_TA: data.chestPainType === 'TA' ? 1 : 0,
+    restingECG_Normal: data.restingECG === 'Normal' ? 1 : 0,
+    restingECG_ST: data.restingECG === 'ST' ? 1 : 0,
+    restingECG_LVH: data.restingECG === 'LVH' ? 1 : 0,
+    exerciseAngina_N: data.exerciseAngina === 'N' ? 1 : 0,
+    exerciseAngina_Y: data.exerciseAngina === 'Y' ? 1 : 0,
+    stSlope_Up: data.stSlope === 'Up' ? 1 : 0,
+    stSlope_Flat: data.stSlope === 'Flat' ? 1 : 0,
+    stSlope_Down: data.stSlope === 'Down' ? 1 : 0,
   };
 
   // Combine normalised and encoded data into a single input tensor
   return tf.tensor2d([
     [
-      data.Age,
-      data.RestingBP,
-      data.Cholesterol,
-      data.FastingBS,
-      data.MaxHR,
-      data.Oldpeak,
-      encodedData.Sex_M,
-      encodedData.Sex_F,
-      encodedData.ChestPainType_ATA,
-      encodedData.ChestPainType_NAP,
-      encodedData.ChestPainType_ASY,
-      encodedData.ChestPainType_TA,
-      encodedData.RestingECG_Normal,
-      encodedData.RestingECG_ST,
-      encodedData.RestingECG_LVH,
-      encodedData.ExerciseAngina_N,
-      encodedData.ExerciseAngina_Y,
-      encodedData.ST_Slope_Up,
-      encodedData.ST_Slope_Flat,
-      encodedData.ST_Slope_Down,
+      age,
+      restingBP,
+      cholesterol,
+      fastingBS,
+      maxHR,
+      oldpeak,
+      encodedData.sex_M,
+      encodedData.sex_F,
+      encodedData.chestPainType_ATA,
+      encodedData.chestPainType_NAP,
+      encodedData.chestPainType_ASY,
+      encodedData.chestPainType_TA,
+      encodedData.restingECG_Normal,
+      encodedData.restingECG_ST,
+      encodedData.restingECG_LVH,
+      encodedData.exerciseAngina_N,
+      encodedData.exerciseAngina_Y,
+      encodedData.stSlope_Up,
+      encodedData.stSlope_Flat,
+      encodedData.stSlope_Down,
     ],
   ]);
 }
