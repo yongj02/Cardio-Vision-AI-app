@@ -53,7 +53,7 @@ const DatasetUploadPage = () => {
         const validFormats = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
         if (!validFormats.includes(selectedFile.type)) {
             triggerModal('Invalid File Format', 'Invalid file format. Please upload a CSV or Excel file.');
-            setIsValidFile(false);
+            resetFileInput(); // Reset the input on error
             return;
         }
 
@@ -67,7 +67,7 @@ const DatasetUploadPage = () => {
 
             if (!headers) {
                 triggerModal('Invalid File', 'The file is empty or not formatted correctly.');
-                setIsValidFile(false);
+                resetFileInput(); // Reset the input on error
                 return;
             }
 
@@ -75,7 +75,7 @@ const DatasetUploadPage = () => {
             const missingColumns = requiredColumns.filter(col => !lowerCaseHeaders.includes(col.toLowerCase()));
             if (missingColumns.length > 0) {
                 triggerModal('Missing Columns', `File is missing the following required columns: ${missingColumns.join(', ')}`);
-                setIsValidFile(false);
+                resetFileInput(); // Reset the input on error
                 return;
             }
 
@@ -93,7 +93,7 @@ const DatasetUploadPage = () => {
 
             if (missingValuesRows.length > 0) {
                 triggerModal('Missing Values', 'One or more rows contain missing values in required columns. Please check your file.');
-                setIsValidFile(false);
+                resetFileInput(); // Reset the input on error
                 return;
             }
 
@@ -136,6 +136,7 @@ const DatasetUploadPage = () => {
     const handleUpload = async () => {
         if (!isValidFile || !file) {
             triggerModal('Error', 'No valid file selected.');
+            resetFileInput(); // Reset the input on error
             return;
         }
 
@@ -157,12 +158,15 @@ const DatasetUploadPage = () => {
         } catch (err) {
             triggerModal('Upload Failed', 'Failed to upload the dataset. Please try again.');
         } finally {
-            // Clear the file input and reset state
-            setFile(null);
-            setIsValidFile(false);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = ''; // Reset file input
-            }
+            resetFileInput(); // Always reset the input after upload attempt
+        }
+    };
+
+    const resetFileInput = () => {
+        setFile(null);
+        setIsValidFile(false);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ''; // Reset the file input
         }
     };
 
