@@ -74,10 +74,21 @@ const FileUploader = ({ onFileProcessed }) => {
                     return requiredColumns.map(col => row[headerIndices[col]]);
                 });
 
-                setModalTitle('Upload Success');
-                setModalContent('File uploaded successfully with all required columns.');
-                setShowModal(true);
-                onFileProcessed(reorderedData);
+                // Check for missing values in required columns
+                const missingValuesRows = reorderedData.filter(row =>
+                    row.some(value => value === null || value === undefined || value === '')
+                );
+
+                if (missingValuesRows.length > 0) {
+                    setModalTitle('Missing Values Detected');
+                    setModalContent(`One or more rows contain missing values in required columns. Please check your file.`);
+                    setShowModal(true);
+                } else {
+                    setModalTitle('Upload Success');
+                    setModalContent('File uploaded successfully with all required columns.');
+                    setShowModal(true);
+                    onFileProcessed(reorderedData);
+                }
             } else {
                 setModalTitle('Missing Columns');
                 setModalContent('File is missing one or more required columns.');
