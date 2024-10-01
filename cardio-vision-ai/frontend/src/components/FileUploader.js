@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Alert, Modal, Button } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 import '../styles/styles.css';
 
 const FileUploader = ({ onFileProcessed }) => {
     const [fileError, setFileError] = useState('');
-    const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState('');
     const [uploadSuccess, setUploadSuccess] = useState('');
+    const [showModal, setShowModal] = useState(false);
+    const [modalContent, setModalContent] = useState('');
+    const [modalTitle, setModalTitle] = useState('');
 
     const requiredColumns = [
         'age',
@@ -36,7 +38,9 @@ const FileUploader = ({ onFileProcessed }) => {
         const validFormats = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
 
         if (!validFormats.includes(file.type)) {
-            setFileError('Invalid file format. Please upload a CSV or Excel file.');
+            setModalTitle('Invalid File Format');
+            setModalContent('Invalid file format. Please upload a CSV or Excel file.');
+            setShowModal(true);
             return;
         }
 
@@ -49,7 +53,9 @@ const FileUploader = ({ onFileProcessed }) => {
             const headers = worksheet[0];
 
             if (!headers) {
-                setUploadError('The file is empty or not formatted correctly.');
+                setModalTitle('Empty or Incorrect File');
+                setModalContent('The file is empty or not formatted correctly.');
+                setShowModal(true);
                 return;
             }
 
@@ -62,24 +68,23 @@ const FileUploader = ({ onFileProcessed }) => {
                 return acc;
             }, {});
 
+            // Check if all required columns are present
             if (Object.keys(headerIndices).length === requiredColumns.length) {
                 const reorderedData = worksheet.slice(1).map(row => {
                     return requiredColumns.map(col => row[headerIndices[col]]);
                 });
 
-                setUploadSuccess('File uploaded successfully with all required columns.');
+                setModalTitle('Upload Success');
+                setModalContent('File uploaded successfully with all required columns.');
+                setShowModal(true);
                 onFileProcessed(reorderedData);
             } else {
-                setUploadError('File is missing one or more required columns.');
+                setModalTitle('Missing Columns');
+                setModalContent('File is missing one or more required columns.');
+                setShowModal(true);
             }
         };
         reader.readAsArrayBuffer(file);
-
-        setUploading(true);
-
-        setTimeout(() => {
-            setUploading(false);
-        }, 5000);
     };
 
     const { getRootProps, getInputProps } = useDropzone({
@@ -87,6 +92,8 @@ const FileUploader = ({ onFileProcessed }) => {
         multiple: false,
         accept: '.csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
+
+    const handleCloseModal = () => setShowModal(false);
 
     return (
         <div>
@@ -96,9 +103,19 @@ const FileUploader = ({ onFileProcessed }) => {
                 <input {...getInputProps()} />
                 Drag & drop your dataset here, or click to select files
             </div>
-            {fileError && <Alert variant="danger" className="mt-2">{fileError}</Alert>}
-            {uploadError && <Alert variant="danger" className="mt-2">{uploadError}</Alert>}
-            {uploadSuccess && <Alert variant="success" className="mt-2">{uploadSuccess}</Alert>}
+
+            {/* Bootstrap Modal */}
+            <Modal show={showModal} onHide={handleCloseModal} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>{modalTitle}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>{modalContent}</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseModal}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };
