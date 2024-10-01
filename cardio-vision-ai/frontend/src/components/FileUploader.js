@@ -9,21 +9,20 @@ const FileUploader = ({ onFileProcessed }) => {
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState('');
     const [uploadSuccess, setUploadSuccess] = useState('');
-    
+
     const requiredColumns = [
-        'Age',
-        'Sex',
-        'ChestPainType',
-        'RestingBP',
-        'Cholesterol',
-        'FastingBS',
-        'RestingECG',
-        'MaxHR',
-        'ExerciseAngina',
-        'Oldpeak',
-        'ST_Slope'
+        'age',
+        'sex',
+        'chestpaintype',
+        'restingbp',
+        'cholesterol',
+        'fastingbs',
+        'restingecg',
+        'maxhr',
+        'exerciseangina',
+        'oldpeak',
+        'st_slope'
     ];
-    
 
     const handleDrop = (acceptedFiles) => {
         processFile(acceptedFiles[0]);
@@ -54,23 +53,11 @@ const FileUploader = ({ onFileProcessed }) => {
                 return;
             }
 
-            const headerMap = {
-                'Age': 'Age',
-                'Sex': 'Sex',
-                'ChestPainType': 'ChestPainType',
-                'RestingBP': 'RestingBP',
-                'Cholesterol': 'Cholesterol',
-                'FastingBS': 'FastingBS',
-                'RestingECG': 'RestingECG',
-                'MaxHR': 'MaxHR',
-                'ExerciseAngina': 'ExerciseAngina',
-                'Oldpeak': 'Oldpeak',
-                'ST_Slope': 'ST_Slope'
-            };
-            
+            // Convert headers to lowercase for case-insensitive comparison
+            const lowerCaseHeaders = headers.map(header => header.toLowerCase());
 
             const headerIndices = requiredColumns.reduce((acc, col) => {
-                const index = headers.indexOf(col);
+                const index = lowerCaseHeaders.indexOf(col);
                 if (index !== -1) acc[col] = index;
                 return acc;
             }, {});
