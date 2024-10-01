@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { Container, Table, Button, Modal } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
@@ -10,8 +10,10 @@ const DatasetUploadPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [modalTitle, setModalTitle] = useState('');
     const [modalContent, setModalContent] = useState('');
-    const [isDeleteModal, setIsDeleteModal] = useState(false);  // New state to differentiate delete modal
+    const [isDeleteModal, setIsDeleteModal] = useState(false);
     const [datasetToDelete, setDatasetToDelete] = useState(null);
+    
+    const fileInputRef = useRef(null); // Create a ref for the file input
 
     const requiredColumns = [
         'age',
@@ -27,7 +29,6 @@ const DatasetUploadPage = () => {
         'st_slope'
     ];
 
-    // Fetch datasets on component mount
     const fetchDatasets = async () => {
         try {
             const response = await axios.get('/api/datasets');
@@ -48,14 +49,14 @@ const DatasetUploadPage = () => {
             setIsValidFile(false);
             return;
         }
-    
+
         const validFormats = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
         if (!validFormats.includes(selectedFile.type)) {
             triggerModal('Invalid File Format', 'Invalid file format. Please upload a CSV or Excel file.');
             setIsValidFile(false);
             return;
         }
-    
+
         const reader = new FileReader();
         reader.onload = (e) => {
             const data = new Uint8Array(e.target.result);
@@ -63,14 +64,13 @@ const DatasetUploadPage = () => {
             const sheetName = workbook.SheetNames[0];
             const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
             const headers = worksheet[0];
-    
+
             if (!headers) {
                 triggerModal('Invalid File', 'The file is empty or not formatted correctly.');
                 setIsValidFile(false);
                 return;
             }
-    
-            // Case-insensitive check for missing columns
+
             const lowerCaseHeaders = headers.map(header => header.toLowerCase());
             const missingColumns = requiredColumns.filter(col => !lowerCaseHeaders.includes(col.toLowerCase()));
             if (missingColumns.length > 0) {
@@ -78,51 +78,46 @@ const DatasetUploadPage = () => {
                 setIsValidFile(false);
                 return;
             }
-    
-            // Check for missing values in rows (explicit check for null, undefined, or empty string)
+
             const requiredColumnIndices = requiredColumns.reduce((acc, col) => {
                 acc[col] = lowerCaseHeaders.indexOf(col.toLowerCase());
                 return acc;
             }, {});
-    
+
             const missingValuesRows = worksheet.slice(1).filter(row =>
                 requiredColumns.some(col => {
                     const value = row[requiredColumnIndices[col]];
-                    // Explicit check for null, undefined, or empty string
                     return value === undefined || value === null || value === '';
                 })
             );
-    
+
             if (missingValuesRows.length > 0) {
                 triggerModal('Missing Values', 'One or more rows contain missing values in required columns. Please check your file.');
                 setIsValidFile(false);
                 return;
             }
-    
+
             setFile(selectedFile);
             setIsValidFile(true);
         };
         reader.readAsArrayBuffer(selectedFile);
     };
 
-    // Trigger the modal for errors or success
     const triggerModal = (title, content) => {
         setModalTitle(title);
         setModalContent(content);
-        setIsDeleteModal(false);  // Reset the delete modal flag
+        setIsDeleteModal(false);
         setShowModal(true);
     };
 
-    // Confirm deletion modal
     const confirmDeleteDataset = (dataset) => {
         setDatasetToDelete(dataset);
         setModalTitle('Confirm Deletion');
         setModalContent(`Are you sure you want to delete the dataset: ${dataset.name}?`);
-        setIsDeleteModal(true);  // Set this as a delete modal
+        setIsDeleteModal(true);
         setShowModal(true);
     };
 
-    // Handle dataset deletion
     const handleDeleteDataset = async () => {
         if (!datasetToDelete) return;
 
@@ -138,7 +133,6 @@ const DatasetUploadPage = () => {
         }
     };
 
-    // Handle file upload
     const handleUpload = async () => {
         if (!isValidFile || !file) {
             triggerModal('Error', 'No valid file selected.');
@@ -159,15 +153,19 @@ const DatasetUploadPage = () => {
                 const updatedDatasets = await axios.get('/api/datasets');
                 setDatasets(updatedDatasets.data || []);
                 triggerModal('Success', 'Dataset uploaded successfully!');
-                setFile(null);
-                setIsValidFile(false);
             }
         } catch (err) {
             triggerModal('Upload Failed', 'Failed to upload the dataset. Please try again.');
+        } finally {
+            // Clear the file input and reset state
+            setFile(null);
+            setIsValidFile(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ''; // Reset file input
+            }
         }
     };
 
-    // Render datasets table
     const renderDatasetsTable = () => (
         <Table striped bordered hover className="mt-4">
             <thead>
@@ -209,6 +207,7 @@ const DatasetUploadPage = () => {
                 type="file"
                 accept=".csv, .xls, .xlsx"
                 onChange={handleFileChange}
+                ref={fileInputRef} // Attach ref to the input
             />
             <Button
                 className="mt-3"
