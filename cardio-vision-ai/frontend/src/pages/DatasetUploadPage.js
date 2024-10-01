@@ -1,31 +1,30 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Alert, Container, Table, Button, Modal } from 'react-bootstrap';
+import { Container, Table, Button, Modal } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 
 const DatasetUploadPage = () => {
     const [datasets, setDatasets] = useState([]);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-    const [uploadError, setUploadError] = useState('');
     const [file, setFile] = useState(null);
-    const [fileError, setFileError] = useState('');
     const [isValidFile, setIsValidFile] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [datasetToDelete, setDatasetToDelete] = useState(null);  // Track the dataset to delete
+    const [showModal, setShowModal] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalContent, setModalContent] = useState('');
+    const [isDeleteModal, setIsDeleteModal] = useState(false);  // New state to differentiate delete modal
+    const [datasetToDelete, setDatasetToDelete] = useState(null);
 
     const requiredColumns = [
-        'Age',
-        'Sex',
-        'ChestPainType',
-        'RestingBP',
-        'Cholesterol',
-        'FastingBS',
-        'RestingECG',
-        'MaxHR',
-        'ExerciseAngina',
-        'Oldpeak',
-        'ST_Slope'
+        'age',
+        'sex',
+        'chestpaintype',
+        'restingbp',
+        'cholesterol',
+        'fastingbs',
+        'restingecg',
+        'maxhr',
+        'exerciseangina',
+        'oldpeak',
+        'st_slope'
     ];
 
     // Fetch datasets on component mount
@@ -34,7 +33,7 @@ const DatasetUploadPage = () => {
             const response = await axios.get('/api/datasets');
             setDatasets(response.data || []);
         } catch (err) {
-            setError('Error fetching datasets.');
+            triggerModal('Error', 'Error fetching datasets.');
         }
     };
 
@@ -42,7 +41,6 @@ const DatasetUploadPage = () => {
         fetchDatasets();
     }, []);
 
-    // Handle file selection and validation
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
         if (!selectedFile) {
@@ -50,14 +48,14 @@ const DatasetUploadPage = () => {
             setIsValidFile(false);
             return;
         }
-
+    
         const validFormats = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
         if (!validFormats.includes(selectedFile.type)) {
-            setFileError('Invalid file format. Please upload a CSV or Excel file.');
+            triggerModal('Invalid File Format', 'Invalid file format. Please upload a CSV or Excel file.');
             setIsValidFile(false);
             return;
         }
-
+    
         const reader = new FileReader();
         reader.onload = (e) => {
             const data = new Uint8Array(e.target.result);
@@ -65,31 +63,85 @@ const DatasetUploadPage = () => {
             const sheetName = workbook.SheetNames[0];
             const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
             const headers = worksheet[0];
-
+    
             if (!headers) {
-                setFileError('The file is empty or not formatted correctly.');
+                triggerModal('Invalid File', 'The file is empty or not formatted correctly.');
                 setIsValidFile(false);
                 return;
             }
-
-            const missingColumns = requiredColumns.filter(col => !headers.includes(col));
+    
+            // Case-insensitive check for missing columns
+            const lowerCaseHeaders = headers.map(header => header.toLowerCase());
+            const missingColumns = requiredColumns.filter(col => !lowerCaseHeaders.includes(col.toLowerCase()));
             if (missingColumns.length > 0) {
-                setFileError(`File is missing the following required columns: ${missingColumns.join(', ')}`);
+                triggerModal('Missing Columns', `File is missing the following required columns: ${missingColumns.join(', ')}`);
                 setIsValidFile(false);
                 return;
             }
-
-            setFileError('');
-            setIsValidFile(true);
+    
+            // Check for missing values in rows (explicit check for null, undefined, or empty string)
+            const requiredColumnIndices = requiredColumns.reduce((acc, col) => {
+                acc[col] = lowerCaseHeaders.indexOf(col.toLowerCase());
+                return acc;
+            }, {});
+    
+            const missingValuesRows = worksheet.slice(1).filter(row =>
+                requiredColumns.some(col => {
+                    const value = row[requiredColumnIndices[col]];
+                    // Explicit check for null, undefined, or empty string
+                    return value === undefined || value === null || value === '';
+                })
+            );
+    
+            if (missingValuesRows.length > 0) {
+                triggerModal('Missing Values', 'One or more rows contain missing values in required columns. Please check your file.');
+                setIsValidFile(false);
+                return;
+            }
+    
             setFile(selectedFile);
+            setIsValidFile(true);
         };
         reader.readAsArrayBuffer(selectedFile);
+    };
+
+    // Trigger the modal for errors or success
+    const triggerModal = (title, content) => {
+        setModalTitle(title);
+        setModalContent(content);
+        setIsDeleteModal(false);  // Reset the delete modal flag
+        setShowModal(true);
+    };
+
+    // Confirm deletion modal
+    const confirmDeleteDataset = (dataset) => {
+        setDatasetToDelete(dataset);
+        setModalTitle('Confirm Deletion');
+        setModalContent(`Are you sure you want to delete the dataset: ${dataset.name}?`);
+        setIsDeleteModal(true);  // Set this as a delete modal
+        setShowModal(true);
+    };
+
+    // Handle dataset deletion
+    const handleDeleteDataset = async () => {
+        if (!datasetToDelete) return;
+
+        try {
+            await axios.delete(`/api/datasets/${datasetToDelete._id}`);
+            setDatasets(datasets.filter((d) => d._id !== datasetToDelete._id));
+            triggerModal('Success', 'Dataset deleted successfully!');
+        } catch (err) {
+            triggerModal('Error', 'Failed to delete dataset.');
+        } finally {
+            setDatasetToDelete(null);
+            setIsDeleteModal(false);
+        }
     };
 
     // Handle file upload
     const handleUpload = async () => {
         if (!isValidFile || !file) {
-            setUploadError('No valid file selected.');
+            triggerModal('Error', 'No valid file selected.');
             return;
         }
 
@@ -106,34 +158,12 @@ const DatasetUploadPage = () => {
             if (response.status === 201) {
                 const updatedDatasets = await axios.get('/api/datasets');
                 setDatasets(updatedDatasets.data || []);
-                setSuccess('Dataset uploaded successfully!');
+                triggerModal('Success', 'Dataset uploaded successfully!');
                 setFile(null);
                 setIsValidFile(false);
             }
         } catch (err) {
-            setUploadError('Failed to upload the dataset. Please try again.');
-        }
-    };
-
-    // Confirm deletion modal
-    const confirmDeleteDataset = (dataset) => {
-        setDatasetToDelete(dataset);
-        setShowDeleteModal(true);
-    };
-
-    // Handle dataset deletion
-    const handleDeleteDataset = async () => {
-        if (!datasetToDelete) return;
-
-        try {
-            await axios.delete(`/api/datasets/${datasetToDelete._id}`);
-            setDatasets(datasets.filter((d) => d._id !== datasetToDelete._id));
-            setSuccess('Dataset deleted successfully!');
-        } catch (err) {
-            setError('Failed to delete dataset.');
-        } finally {
-            setShowDeleteModal(false);
-            setDatasetToDelete(null);
+            triggerModal('Upload Failed', 'Failed to upload the dataset. Please try again.');
         }
     };
 
@@ -174,11 +204,6 @@ const DatasetUploadPage = () => {
         <Container className="mt-5">
             <h2>Dataset Upload</h2>
 
-            {/* Success, upload error, and fetch error alerts */}
-            {success && <Alert variant="success" onClose={() => setSuccess('')} dismissible>{success}</Alert>}
-            {uploadError && <Alert variant="danger" onClose={() => setUploadError('')} dismissible>{uploadError}</Alert>}
-            {fileError && <Alert variant="danger" onClose={() => setFileError('')} dismissible>{fileError}</Alert>}
-
             {/* File input and validation */}
             <input
                 type="file"
@@ -196,21 +221,27 @@ const DatasetUploadPage = () => {
             {/* Display existing datasets */}
             {renderDatasetsTable()}
 
-            {/* Modal to confirm dataset deletion */}
-            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+            {/* Modal for deletion confirmation, errors, and success messages */}
+            <Modal show={showModal} onHide={() => setShowModal(false)} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>Confirm Deletion</Modal.Title>
+                    <Modal.Title>{modalTitle}</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    Are you sure you want to delete this dataset: <strong>{datasetToDelete?.name}</strong>?
-                </Modal.Body>
+                <Modal.Body>{modalContent}</Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-                        Cancel
-                    </Button>
-                    <Button variant="danger" onClick={handleDeleteDataset}>
-                        Delete
-                    </Button>
+                    {isDeleteModal ? (
+                        <>
+                            <Button variant="secondary" onClick={() => setShowModal(false)}>
+                                Cancel
+                            </Button>
+                            <Button variant="danger" onClick={handleDeleteDataset}>
+                                Delete
+                            </Button>
+                        </>
+                    ) : (
+                        <Button variant="secondary" onClick={() => setShowModal(false)}>
+                            Close
+                        </Button>
+                    )}
                 </Modal.Footer>
             </Modal>
         </Container>
