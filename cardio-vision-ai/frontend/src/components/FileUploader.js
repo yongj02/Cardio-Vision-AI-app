@@ -69,30 +69,32 @@ const FileUploader = ({ onFileProcessed }) => {
             }, {});
 
             // Check if all required columns are present
-            if (Object.keys(headerIndices).length === requiredColumns.length) {
-                const reorderedData = worksheet.slice(1).map(row => {
-                    return requiredColumns.map(col => row[headerIndices[col]]);
-                });
-
-                // Check for missing values in required columns
-                const missingValuesRows = reorderedData.filter(row =>
-                    row.some(value => value === null || value === undefined || value === '')
-                );
-
-                if (missingValuesRows.length > 0) {
-                    setModalTitle('Missing Values Detected');
-                    setModalContent(`One or more rows contain missing values in required columns. Please check your file.`);
-                    setShowModal(true);
-                } else {
-                    setModalTitle('Upload Success');
-                    setModalContent('File uploaded successfully with all required columns.');
-                    setShowModal(true);
-                    onFileProcessed(reorderedData);
-                }
-            } else {
+            const missingColumns = requiredColumns.filter(col => !(col in headerIndices));
+            if (missingColumns.length > 0) {
                 setModalTitle('Missing Columns');
-                setModalContent('File is missing one or more required columns.');
+                setModalContent(`File is missing the following required columns: ${missingColumns.join(', ')}`);
                 setShowModal(true);
+                return; // Exit early if there are missing columns
+            }
+
+            const reorderedData = worksheet.slice(1).map(row => {
+                return requiredColumns.map(col => row[headerIndices[col]]);
+            });
+
+            // Check for missing values in required columns
+            const missingValuesRows = reorderedData.filter(row =>
+                row.some(value => value === null || value === undefined || value === '')
+            );
+
+            if (missingValuesRows.length > 0) {
+                setModalTitle('Missing Values Detected');
+                setModalContent(`One or more rows contain missing values in required columns. Please check your file.`);
+                setShowModal(true);
+            } else {
+                setModalTitle('Upload Success');
+                setModalContent(`File "${file.name}" uploaded successfully with all required columns.`);
+                setShowModal(true);
+                onFileProcessed(reorderedData);
             }
         };
         reader.readAsArrayBuffer(file);
