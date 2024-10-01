@@ -3,24 +3,24 @@ const tf = require('@tensorflow/tfjs-node');
 // Preprocessing function
 function preprocessInput(data) {
   // Normalise numerical values
-  const minAge = 28;
+  const minAge = 29;
   const maxAge = 77;
   const age = (data.age - minAge) / (maxAge - minAge);
 
-  const minRestingBP = 0;
+  const minRestingBP = 92;
   const maxRestingBP = 200;
   const restingBP = (data.restingBP - minRestingBP) / (maxRestingBP - minRestingBP);
 
-  const minCholesterol = 0;
-  const maxCholesterol = 603;
+  const minCholesterol = 100;
+  const maxCholesterol = 564;
   const cholesterol = (data.cholesterol - minCholesterol) / (maxCholesterol - minCholesterol);
 
-  const minMaxHR = 60;
-  const maxMaxHR = 202;
+  const minMaxHR = 63;
+  const maxMaxHR = 190;
   const maxHR = (data.maxHR - minMaxHR) / (maxMaxHR - minMaxHR);
 
-  const minOldpeak = -2.6;
-  const maxOldpeak = 6.2;
+  const minOldpeak = -2;
+  const maxOldpeak = 4;
   const oldpeak = (data.oldpeak - minOldpeak) / (maxOldpeak - minOldpeak);
 
   const fastingBS = data.fastingBS;
