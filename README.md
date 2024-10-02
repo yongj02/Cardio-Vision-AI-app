@@ -14,6 +14,8 @@ Cardio Vision AI is a web application that utilizes a deep learning model for ca
 2. Install the necessary dependencies:
     ```bash
     npm install
+    
+    *move tensorflow.dll from node_modules\@tensorflow\tfjs-node\lib\napi-v9 to napi-v8
     ```
 
 3. Create a `.env` file with the following layout:
