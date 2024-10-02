@@ -1,29 +1,30 @@
 import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Alert, Modal, Button } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 import '../styles/styles.css';
 
 const FileUploader = ({ onFileProcessed }) => {
     const [fileError, setFileError] = useState('');
-    const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState('');
     const [uploadSuccess, setUploadSuccess] = useState('');
-    
+    const [showModal, setShowModal] = useState(false);
+    const [modalContent, setModalContent] = useState('');
+    const [modalTitle, setModalTitle] = useState('');
+
     const requiredColumns = [
-        'Age',
-        'Sex',
-        'ChestPainType',
-        'RestingBP',
-        'Cholesterol',
-        'FastingBS',
-        'RestingECG',
-        'MaxHR',
-        'ExerciseAngina',
-        'Oldpeak',
-        'ST_Slope'
+        'age',
+        'sex',
+        'chestpaintype',
+        'restingbp',
+        'cholesterol',
+        'fastingbs',
+        'restingecg',
+        'maxhr',
+        'exerciseangina',
+        'oldpeak',
+        'st_slope'
     ];
-    
 
     const handleDrop = (acceptedFiles) => {
         processFile(acceptedFiles[0]);
@@ -37,7 +38,9 @@ const FileUploader = ({ onFileProcessed }) => {
         const validFormats = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
 
         if (!validFormats.includes(file.type)) {
-            setFileError('Invalid file format. Please upload a CSV or Excel file.');
+            setModalTitle('Invalid File Format');
+            setModalContent('Invalid file format. Please upload a CSV or Excel file.');
+            setShowModal(true);
             return;
         }
 
@@ -50,49 +53,51 @@ const FileUploader = ({ onFileProcessed }) => {
             const headers = worksheet[0];
 
             if (!headers) {
-                setUploadError('The file is empty or not formatted correctly.');
+                setModalTitle('Empty or Incorrect File');
+                setModalContent('The file is empty or not formatted correctly.');
+                setShowModal(true);
                 return;
             }
 
-            const headerMap = {
-                'Age': 'Age',
-                'Sex': 'Sex',
-                'ChestPainType': 'ChestPainType',
-                'RestingBP': 'RestingBP',
-                'Cholesterol': 'Cholesterol',
-                'FastingBS': 'FastingBS',
-                'RestingECG': 'RestingECG',
-                'MaxHR': 'MaxHR',
-                'ExerciseAngina': 'ExerciseAngina',
-                'Oldpeak': 'Oldpeak',
-                'ST_Slope': 'ST_Slope'
-            };
-            
+            // Convert headers to lowercase for case-insensitive comparison
+            const lowerCaseHeaders = headers.map(header => header.toLowerCase());
 
             const headerIndices = requiredColumns.reduce((acc, col) => {
-                const index = headers.indexOf(col);
+                const index = lowerCaseHeaders.indexOf(col);
                 if (index !== -1) acc[col] = index;
                 return acc;
             }, {});
 
-            if (Object.keys(headerIndices).length === requiredColumns.length) {
-                const reorderedData = worksheet.slice(1).map(row => {
-                    return requiredColumns.map(col => row[headerIndices[col]]);
-                });
+            // Check if all required columns are present
+            const missingColumns = requiredColumns.filter(col => !(col in headerIndices));
+            if (missingColumns.length > 0) {
+                setModalTitle('Missing Columns');
+                setModalContent(`File is missing the following required columns: ${missingColumns.join(', ')}`);
+                setShowModal(true);
+                return; // Exit early if there are missing columns
+            }
 
-                setUploadSuccess('File uploaded successfully with all required columns.');
-                onFileProcessed(reorderedData);
+            const reorderedData = worksheet.slice(1).map(row => {
+                return requiredColumns.map(col => row[headerIndices[col]]);
+            });
+
+            // Check for missing values in required columns
+            const missingValuesRows = reorderedData.filter(row =>
+                row.some(value => value === null || value === undefined || value === '')
+            );
+
+            if (missingValuesRows.length > 0) {
+                setModalTitle('Missing Values Detected');
+                setModalContent(`One or more rows contain missing values in required columns. Please check your file.`);
+                setShowModal(true);
             } else {
-                setUploadError('File is missing one or more required columns.');
+                setModalTitle('Upload Success');
+                setModalContent(`File "${file.name}" uploaded successfully with all required columns.`);
+                setShowModal(true);
+                onFileProcessed(reorderedData);
             }
         };
         reader.readAsArrayBuffer(file);
-
-        setUploading(true);
-
-        setTimeout(() => {
-            setUploading(false);
-        }, 5000);
     };
 
     const { getRootProps, getInputProps } = useDropzone({
@@ -100,6 +105,8 @@ const FileUploader = ({ onFileProcessed }) => {
         multiple: false,
         accept: '.csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
+
+    const handleCloseModal = () => setShowModal(false);
 
     return (
         <div>
@@ -109,9 +116,19 @@ const FileUploader = ({ onFileProcessed }) => {
                 <input {...getInputProps()} />
                 Drag & drop your dataset here, or click to select files
             </div>
-            {fileError && <Alert variant="danger" className="mt-2">{fileError}</Alert>}
-            {uploadError && <Alert variant="danger" className="mt-2">{uploadError}</Alert>}
-            {uploadSuccess && <Alert variant="success" className="mt-2">{uploadSuccess}</Alert>}
+
+            {/* Bootstrap Modal */}
+            <Modal show={showModal} onHide={handleCloseModal} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>{modalTitle}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>{modalContent}</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseModal}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };
