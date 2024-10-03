@@ -54,7 +54,7 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
         else if (age >= 91) ageRanges[9][prediction === 1 ? 'highRisk' : 'lowRisk']++;
     });
 
-    const ageChartOptions = {
+    const options = {
         scales: {
             y: {
                 beginAtZero: true,
@@ -66,22 +66,6 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
                 }
             }
         },
-        plugins: {
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        let label = context.dataset.label || '';
-                        if (label) {
-                            label += ': ';
-                        }
-                        if (context.parsed.y !== null) {
-                            label += Math.abs(context.parsed.y);
-                        }
-                        return label;
-                    }
-                }
-            }
-        }
     };
     
     const ageData = {
@@ -122,6 +106,55 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
             borderWidth: 1,
         }],
     };
+
+    // Separate data into high risk and low risk
+    const highRiskData = [];
+    const lowRiskData = [];
+
+    for (let i = 0; i < bloodPressures.length; i++) {
+        const point = { x: bloodPressures[i], y: cholesterols[i] };
+        if (predictions[i] === 1) {
+            highRiskData.push(point);
+        } else {
+            lowRiskData.push(point);
+        }
+    }
+
+    const bpChData = {
+        datasets: [
+        {
+            label: 'High Risk',
+            data: highRiskData,
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+        },
+        {
+            label: 'Low Risk',
+            data: lowRiskData,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+        },
+        ],
+    };
+
+    const bpChOptions = {
+        scales: {
+          x: {
+            type: 'linear',
+            position: 'bottom',
+            title: {
+              display: true,
+              text: 'Blood Pressure',
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Cholesterol',
+            },
+          },
+        },
+      };
 
     const bloodPressureData = {
         labels: ['Blood Pressure'],
@@ -235,39 +268,43 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
                         <h3>Charts</h3>
                         <div className="chart-container mb-3">
                             <h4>Age Distribution</h4>
-                            <Bar data={ageData} options={ageChartOptions} />
+                            <Bar data={ageData} options={options} />
                         </div>
                         <div className="chart-container mb-3">
                             <h4>Gender Distribution</h4>
                             <Pie data={genderData} />
                         </div>
                         <div className="chart-container mb-3">
+                            <h4>Cholesterol vs. Blood Pressure</h4>
+                            <Scatter data={bpChData} options={bpChOptions} />
+                        </div>
+                        <div className="chart-container mb-3">
                             <h4>Blood Pressure vs. Cardiovascular Disease</h4>
-                            <Scatter data={bloodPressureData} />
+                            <Scatter data={bloodPressureData} options={options} />
                         </div>
                         <div className="chart-container mb-3">
                             <h4>Cholesterol Levels vs. Cardiovascular Disease</h4>
-                            <Scatter data={cholesterolData} />
+                            <Scatter data={cholesterolData} options={options} />
                         </div>
                         <div className="chart-container mb-3">
                             <h4>Fasting Blood Sugar vs. Cardiovascular Disease</h4>
-                            <Scatter data={fastingBSData} />
+                            <Scatter data={fastingBSData} options={options} />
                         </div>
                         <div className="chart-container mb-3">
                             <h4>Max Heart Rate vs. Cardiovascular Disease</h4>
-                            <Scatter data={maxHRData} />
+                            <Scatter data={maxHRData} options={options} />
                         </div>
                         <div className="chart-container mb-3">
                             <h4>Exercise Angina vs. Cardiovascular Disease</h4>
-                            <Bar data={exerciseAnginaData} />
+                            <Bar data={exerciseAnginaData} options={options} />
                         </div>
                         <div className="chart-container mb-3">
                             <h4>Oldpeak vs. Cardiovascular Disease</h4>
-                            <Scatter data={oldpeakData} />
+                            <Scatter data={oldpeakData} options={options} />
                         </div>
                         <div className="chart-container mb-3">
                             <h4>ST Slope vs. Cardiovascular Disease</h4>
-                            <Bar data={stSlopeData} />
+                            <Bar data={stSlopeData} options={options} />
                         </div>
                     </div>
                 </div>
