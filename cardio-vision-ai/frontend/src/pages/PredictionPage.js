@@ -162,7 +162,7 @@ const PredictionPage = () => {
                             <tr>
                                 <td>RestingBP</td>
                                 <td>120</td>
-                                <td>Resting blood pressure in mm Hg.</td>
+                                <td>Resting blood pressure in mmHg.</td>
                             </tr>
                             <tr>
                                 <td>Cholesterol</td>

@@ -2,13 +2,15 @@ import React from 'react';
 import { Button, Collapse } from 'react-bootstrap';
 import { Bar, Pie, Scatter } from 'react-chartjs-2';
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Filler } from 'chart.js';
+import chartTrendline from 'chartjs-plugin-trendline';
 
 // Register Chart.js components
 ChartJS.register(
     Title, Tooltip, Legend,
     BarElement, CategoryScale, LinearScale,
     PointElement, LineElement, Filler,
-    ArcElement
+    ArcElement,
+    chartTrendline
 );
 
 const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
@@ -24,6 +26,7 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
     const stSlopes = updatedResults.map(result => result[10]);
     const predictions = updatedResults.map(result => result[11]);
 
+    /* GRAPH 1 */
     const ageRanges = [
         { range: '0 - 10', highRisk: 0, lowRisk: 0 },
         { range: '11 - 20', highRisk: 0, lowRisk: 0 },
@@ -88,6 +91,7 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
         ]
     }
 
+    /* GRAPH 2 */
     const countOccurrences = (array) => {
         return array.reduce((acc, value) => {
             acc[value] = (acc[value] || 0) + 1;
@@ -107,6 +111,7 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
         }],
     };
 
+    /* GRAPH 3 */
     // Separate data into high risk and low risk
     const highRiskData = [];
     const lowRiskData = [];
@@ -120,42 +125,64 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
         }
     }
 
+    sortDataByXY(highRiskData);
+    sortDataByXY(lowRiskData);
+    
+    function sortDataByXY(data) {
+        return data.sort((a, b) => {
+            if (a.x === b.x) {
+                return a.y - b.y;
+            }
+            return a.x - b.x;
+        });
+    }
+
     const bpChData = {
         datasets: [
-        {
-            label: 'High Risk',
-            data: highRiskData,
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgba(255, 99, 132, 1)',
-        },
-        {
-            label: 'Low Risk',
-            data: lowRiskData,
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-        },
+            {
+                label: 'High Risk',
+                data: highRiskData,
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                trendlineLinear: {
+                    style: "rgba(255, 99, 132, 0.2)",
+                    lineStyle: "dashed",
+                    width: 0.5
+                }
+            },
+            {
+                label: 'Low Risk',
+                data: lowRiskData,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                trendlineLinear: {
+                    style: "rgba(75, 192, 192, 0.2)",
+                    lineStyle: "dashed",
+                    width: 0.5
+                }
+            }
         ],
     };
 
     const bpChOptions = {
         scales: {
-          x: {
-            type: 'linear',
-            position: 'bottom',
-            title: {
-              display: true,
-              text: 'Blood Pressure',
+            x: {
+                position: 'bottom',
+                title: {
+                display: true,
+                text: 'Blood Pressure (mmHg)',
+                },
             },
-          },
-          y: {
-            title: {
-              display: true,
-              text: 'Cholesterol',
+            y: {
+                title: {
+                display: true,
+                text: 'Cholesterol (mg/dl)',
+                },
             },
-          },
         },
-      };
+    };
 
+    /* GRAPH 4 --onwards-- */
     const bloodPressureData = {
         labels: ['Blood Pressure'],
         datasets: [{
@@ -272,7 +299,9 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
                         </div>
                         <div className="chart-container mb-3">
                             <h4>Gender Distribution</h4>
-                            <Pie data={genderData} />
+                            <div style={{ width: '50%', margin: '0 auto' }}>
+                                <Pie data={genderData} />
+                            </div>
                         </div>
                         <div className="chart-container mb-3">
                             <h4>Cholesterol vs. Blood Pressure</h4>
