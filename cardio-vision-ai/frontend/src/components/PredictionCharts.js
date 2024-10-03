@@ -24,25 +24,91 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
     const stSlopes = updatedResults.map(result => result[10]);
     const predictions = updatedResults.map(result => result[11]);
 
+    const ageRanges = [
+        { range: '0 - 10', highRisk: 0, lowRisk: 0 },
+        { range: '11 - 20', highRisk: 0, lowRisk: 0 },
+        { range: '21 - 30', highRisk: 0, lowRisk: 0 },
+        { range: '31 - 40', highRisk: 0, lowRisk: 0 },
+        { range: '41 - 50', highRisk: 0, lowRisk: 0 },
+        { range: '51 - 60', highRisk: 0, lowRisk: 0 },
+        { range: '61 - 70', highRisk: 0, lowRisk: 0 },
+        { range: '71 - 80', highRisk: 0, lowRisk: 0 },
+        { range: '81 - 90', highRisk: 0, lowRisk: 0 },
+        { range: '>90', highRisk: 0, lowRisk: 0 }
+    ];
+
+    // Group ages into ranges and count high/low risk predictions
+    updatedResults.forEach(result => {
+        const age = result[0];
+        const prediction = result[11];
+
+        if (age >= 0 && age <= 10) ageRanges[0][prediction === 1 ? 'highRisk' : 'lowRisk']++;
+        else if (age >= 11 && age <= 20) ageRanges[1][prediction === 1 ? 'highRisk' : 'lowRisk']++;
+        else if (age >= 21 && age <= 30) ageRanges[2][prediction === 1 ? 'highRisk' : 'lowRisk']++;
+        else if (age >= 31 && age <= 40) ageRanges[3][prediction === 1 ? 'highRisk' : 'lowRisk']++;
+        else if (age >= 41 && age <= 50) ageRanges[4][prediction === 1 ? 'highRisk' : 'lowRisk']++;
+        else if (age >= 51 && age <= 60) ageRanges[5][prediction === 1 ? 'highRisk' : 'lowRisk']++;
+        else if (age >= 61 && age <= 70) ageRanges[6][prediction === 1 ? 'highRisk' : 'lowRisk']++;
+        else if (age >= 71 && age <= 80) ageRanges[7][prediction === 1 ? 'highRisk' : 'lowRisk']++;
+        else if (age >= 81 && age <= 90) ageRanges[8][prediction === 1 ? 'highRisk' : 'lowRisk']++;
+        else if (age >= 91) ageRanges[9][prediction === 1 ? 'highRisk' : 'lowRisk']++;
+    });
+
+    const ageChartOptions = {
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1, // Set the step size to 1
+                    callback: function(value) {
+                        return Math.abs(value);
+                    }
+                }
+            }
+        },
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                            label += Math.abs(context.parsed.y);
+                        }
+                        return label;
+                    }
+                }
+            }
+        }
+    };
+    
+    const ageData = {
+        labels: ageRanges.map(range => range.range),
+        datasets: [
+            {
+                label: 'High Risk',
+                data: ageRanges.map(range => range.highRisk),
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'Low Risk',
+                data: ageRanges.map(range => range.lowRisk),
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }
+        ]
+    }
+
     const countOccurrences = (array) => {
         return array.reduce((acc, value) => {
             acc[value] = (acc[value] || 0) + 1;
             return acc;
         }, {});
-    };
-
-    const ageData = {
-        labels: [...new Set(ages)].sort((a, b) => a - b),
-        datasets: [{
-            label: 'Age Distribution',
-            data: ages.reduce((acc, age) => {
-                acc[age] = (acc[age] || 0) + 1;
-                return acc;
-            }, {}),
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1,
-        }],
     };
 
     const genderCounts = countOccurrences(genders);
@@ -51,8 +117,8 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
         datasets: [{
             label: 'Gender Distribution',
             data: Object.values(genderCounts),
-            backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)'],
-            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
+            backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(255, 99, 132, 0.2)', 'rgba(255, 206, 86, 0.2)'],
+            borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)'],
             borderWidth: 1,
         }],
     };
@@ -167,39 +233,39 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
                 <div id="collapsible-charts">
                     <div className="charts">
                         <h3>Charts</h3>
-                        <div className="chart-container">
+                        <div className="chart-container mb-3">
                             <h4>Age Distribution</h4>
-                            <Bar data={ageData} />
+                            <Bar data={ageData} options={ageChartOptions} />
                         </div>
-                        <div className="chart-container">
+                        <div className="chart-container mb-3">
                             <h4>Gender Distribution</h4>
                             <Pie data={genderData} />
                         </div>
-                        <div className="chart-container">
+                        <div className="chart-container mb-3">
                             <h4>Blood Pressure vs. Cardiovascular Disease</h4>
                             <Scatter data={bloodPressureData} />
                         </div>
-                        <div className="chart-container">
+                        <div className="chart-container mb-3">
                             <h4>Cholesterol Levels vs. Cardiovascular Disease</h4>
                             <Scatter data={cholesterolData} />
                         </div>
-                        <div className="chart-container">
+                        <div className="chart-container mb-3">
                             <h4>Fasting Blood Sugar vs. Cardiovascular Disease</h4>
                             <Scatter data={fastingBSData} />
                         </div>
-                        <div className="chart-container">
+                        <div className="chart-container mb-3">
                             <h4>Max Heart Rate vs. Cardiovascular Disease</h4>
                             <Scatter data={maxHRData} />
                         </div>
-                        <div className="chart-container">
+                        <div className="chart-container mb-3">
                             <h4>Exercise Angina vs. Cardiovascular Disease</h4>
                             <Bar data={exerciseAnginaData} />
                         </div>
-                        <div className="chart-container">
+                        <div className="chart-container mb-3">
                             <h4>Oldpeak vs. Cardiovascular Disease</h4>
                             <Scatter data={oldpeakData} />
                         </div>
-                        <div className="chart-container">
+                        <div className="chart-container mb-3">
                             <h4>ST Slope vs. Cardiovascular Disease</h4>
                             <Bar data={stSlopeData} />
                         </div>
