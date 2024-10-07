@@ -113,20 +113,20 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
 
     /* GRAPH 3 */
     // Separate data into high risk and low risk
-    const highRiskData = [];
-    const lowRiskData = [];
+    const bpChHighRiskData = [];
+    const bpChLowRiskData = [];
 
     for (let i = 0; i < bloodPressures.length; i++) {
         const point = { x: bloodPressures[i], y: cholesterols[i] };
         if (predictions[i] === 1) {
-            highRiskData.push(point);
+            bpChHighRiskData.push(point);
         } else {
-            lowRiskData.push(point);
+            bpChLowRiskData.push(point);
         }
     }
 
-    sortDataByXY(highRiskData);
-    sortDataByXY(lowRiskData);
+    sortDataByXY(bpChHighRiskData);
+    sortDataByXY(bpChLowRiskData);
     
     function sortDataByXY(data) {
         return data.sort((a, b) => {
@@ -141,7 +141,7 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
         datasets: [
             {
                 label: 'High Risk',
-                data: highRiskData,
+                data: bpChHighRiskData,
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 borderColor: 'rgba(255, 99, 132, 1)',
                 trendlineLinear: {
@@ -152,7 +152,7 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
             },
             {
                 label: 'Low Risk',
-                data: lowRiskData,
+                data: bpChLowRiskData,
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 trendlineLinear: {
@@ -183,40 +183,29 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
     };
 
     /* GRAPH 4 --onwards-- */
-    const bloodPressureData = {
-        labels: ['Blood Pressure'],
-        datasets: [{
-            label: 'Cardiovascular Disease',
-            data: bloodPressures.map((bp, index) => ({ x: bp, y: predictions[index] })),
-            backgroundColor: 'rgba(255, 159, 64, 0.2)',
-            borderColor: 'rgba(255, 159, 64, 1)',
-            borderWidth: 1,
-            showLine: false,
-        }],
-    };
-
-    const cholesterolData = {
-        labels: ['Cholesterol'],
-        datasets: [{
-            label: 'Cardiovascular Disease',
-            data: cholesterols.map((chol, index) => ({ x: chol, y: predictions[index] })),
-            backgroundColor: 'rgba(153, 102, 255, 0.2)',
-            borderColor: 'rgba(153, 102, 255, 1)',
-            borderWidth: 1,
-            showLine: false,
-        }],
-    };
-
+    const fastingBSCounts = countOccurrences(fastingBS);
     const fastingBSData = {
-        labels: ['Fasting Blood Sugar'],
-        datasets: [{
-            label: 'Cardiovascular Disease',
-            data: fastingBS.map((bs, index) => ({ x: bs, y: predictions[index] })),
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1,
-            showLine: false,
-        }],
+        labels: Object.keys(fastingBSCounts),
+        datasets: [
+            {
+                label: 'Low Risk',
+                data: Object.keys(fastingBSCounts).map(status => {
+                    return updatedResults.filter((_, i) => Number(fastingBS[i]) === Number(status) && predictions[i] === 0).length;
+                }),
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+            },
+            {
+                label: 'High Risk',
+                data: Object.keys(fastingBSCounts).map(status => {
+                    return updatedResults.filter((_, i) => Number(fastingBS[i]) === Number(status) && predictions[i] === 1).length;
+                }),
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1,
+            },
+        ],
     };
 
     const maxHRData = {
@@ -234,18 +223,26 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
     const exerciseAnginaCounts = countOccurrences(exerciseAnginas);
     const exerciseAnginaData = {
         labels: Object.keys(exerciseAnginaCounts),
-        datasets: [{
-            label: 'Cardiovascular Disease by Exercise Angina',
-            data: Object.keys(exerciseAnginaCounts).map(status => {
-                return updatedResults.filter((_, i) => exerciseAnginas[i] === status).map(result => result[11]).reduce((acc, value) => {
-                    acc[value] = (acc[value] || 0) + 1;
-                    return acc;
-                }, {});
-            }),
-            backgroundColor: 'rgba(255, 205, 86, 0.2)',
-            borderColor: 'rgba(255, 205, 86, 1)',
-            borderWidth: 1,
-        }],
+        datasets: [
+            {
+                label: 'Low Risk',
+                data: Object.keys(exerciseAnginaCounts).map(status => {
+                    return updatedResults.filter((_, i) => exerciseAnginas[i] === status && predictions[i] === 0).length;
+                }),
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+            },
+            {
+                label: 'High Risk',
+                data: Object.keys(exerciseAnginaCounts).map(status => {
+                    return updatedResults.filter((_, i) => exerciseAnginas[i] === status && predictions[i] === 1).length;
+                }),
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1,
+            },
+        ],
     };
 
     const oldpeakData = {
@@ -263,20 +260,28 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
     const stSlopeCounts = countOccurrences(stSlopes);
     const stSlopeData = {
         labels: Object.keys(stSlopeCounts),
-        datasets: [{
-            label: 'Cardiovascular Disease by ST Slope',
-            data: Object.keys(stSlopeCounts).map(status => {
-                return updatedResults.filter((_, i) => stSlopes[i] === status).map(result => result[11]).reduce((acc, value) => {
-                    acc[value] = (acc[value] || 0) + 1;
-                    return acc;
-                }, {});
-            }),
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1,
-        }],
+        datasets: [
+            {
+                label: 'Low Risk',
+                data: Object.keys(stSlopeCounts).map(status => {
+                    return updatedResults.filter((_, i) => stSlopes[i] === status && predictions[i] === 0).length;
+                }),
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+            },
+            {
+                label: 'High Risk',
+                data: Object.keys(stSlopeCounts).map(status => {
+                    return updatedResults.filter((_, i) => stSlopes[i] === status && predictions[i] === 1).length;
+                }),
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1,
+            },
+        ],
     };
-
+    
     return (
         <>
             <Button
@@ -294,7 +299,7 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
                     <div className="charts">
                         <h3>Charts</h3>
                         <div className="chart-container mb-3">
-                            <h4>Age Distribution</h4>
+                            <h4>Age Distribution vs. Cardiovascular Disease</h4>
                             <Bar data={ageData} options={options} />
                         </div>
                         <div className="chart-container mb-3">
@@ -308,16 +313,8 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
                             <Scatter data={bpChData} options={bpChOptions} />
                         </div>
                         <div className="chart-container mb-3">
-                            <h4>Blood Pressure vs. Cardiovascular Disease</h4>
-                            <Scatter data={bloodPressureData} options={options} />
-                        </div>
-                        <div className="chart-container mb-3">
-                            <h4>Cholesterol Levels vs. Cardiovascular Disease</h4>
-                            <Scatter data={cholesterolData} options={options} />
-                        </div>
-                        <div className="chart-container mb-3">
                             <h4>Fasting Blood Sugar vs. Cardiovascular Disease</h4>
-                            <Scatter data={fastingBSData} options={options} />
+                            <Bar data={fastingBSData} options={options} />
                         </div>
                         <div className="chart-container mb-3">
                             <h4>Max Heart Rate vs. Cardiovascular Disease</h4>
