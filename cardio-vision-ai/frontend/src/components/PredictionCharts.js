@@ -75,17 +75,17 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
         labels: ageRanges.map(range => range.range),
         datasets: [
             {
-                label: 'High Risk',
-                data: ageRanges.map(range => range.highRisk),
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            },
-            {
                 label: 'Low Risk',
                 data: ageRanges.map(range => range.lowRisk),
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'High Risk',
+                data: ageRanges.map(range => range.highRisk),
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
                 borderWidth: 1
             }
         ]
@@ -140,23 +140,23 @@ const PredictionCharts = ({ updatedResults, openCharts, setOpenCharts }) => {
     const bpChData = {
         datasets: [
             {
-                label: 'High Risk',
-                data: bpChHighRiskData,
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                trendlineLinear: {
-                    style: "rgba(255, 99, 132, 0.2)",
-                    lineStyle: "dashed",
-                    width: 0.5
-                }
-            },
-            {
                 label: 'Low Risk',
                 data: bpChLowRiskData,
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 trendlineLinear: {
                     style: "rgba(75, 192, 192, 0.2)",
+                    lineStyle: "dashed",
+                    width: 0.5
+                }
+            },
+            {
+                label: 'High Risk',
+                data: bpChHighRiskData,
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                trendlineLinear: {
+                    style: "rgba(255, 99, 132, 0.2)",
                     lineStyle: "dashed",
                     width: 0.5
                 }
