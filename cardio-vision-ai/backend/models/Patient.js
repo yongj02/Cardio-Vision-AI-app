@@ -13,7 +13,8 @@ const patientSchema = new mongoose.Schema({
     exerciseAngina: { type: String, required: true },
     oldpeak: { type: Number, required: true },
     stSlope: { type: String, required: true },
-    predictionOutcome: { type: String, required: true } // High Risk or Low Risk
+    predictionOutcome: { type: String, required: true }, // High Risk or Low Risk
+    remark: { type:String, required: false },
   }
 });
 
