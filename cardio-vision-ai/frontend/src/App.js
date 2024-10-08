@@ -20,7 +20,7 @@ function App() {
                 <Route path="/prediction" element={<PredictionPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/results" element={<ResultsPage />} />
-                <Route path="/upload-dataset" element={<DatasetUploadPage />} /> {/* Hidden route */}
+                <Route path="/upload-dataset" element={<DatasetUploadPage />} />
             </Routes>
         </Router>
     );
