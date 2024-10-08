@@ -24,7 +24,8 @@ function ResultsPage() {
             8: patientInfo.exerciseAngina,
             9: patientInfo.oldpeak,
             10: patientInfo.stSlope,
-            11: patientInfo.predictionOutcome === 'High Risk' ? 1 : 0
+            11: patientInfo.predictionOutcome === 'High Risk' ? 1 : 0,
+            12: patientInfo.remark,
         };
     };
     

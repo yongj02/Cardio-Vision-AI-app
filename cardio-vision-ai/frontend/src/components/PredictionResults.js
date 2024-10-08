@@ -17,6 +17,7 @@ function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved
     const [exportFormat, setExportFormat] = useState('csv'); 
     const [editIndex, setEditIndex] = useState(null);
     const [newPrediction, setNewPrediction] = useState(null);
+    const [remark, setRemark] = useState("");
     const [showEditModal, setShowEditModal] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [alertType, setAlertType] = useState('success');
@@ -43,6 +44,7 @@ function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved
         setUpdatedResults(prevResults => {
             const newResults = [...prevResults];
             newResults[editIndex][11] = newPrediction === 'High Risk' ? 1 : 0;
+            newResults[editIndex][12] = remark;
             return newResults;
         });
         setShowEditModal(false);
@@ -73,7 +75,8 @@ function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved
             exerciseAngina: row[8],
             oldpeak: row[9],
             stSlope: row[10],
-            predictionOutcome: row[11] === 1 ? 'High Risk' : 'Low Risk'
+            predictionOutcome: row[11] === 1 ? 'High Risk' : 'Low Risk',
+            remark: row[12],
         }));
         console.log(patientInfos);
     
@@ -115,7 +118,8 @@ function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved
                 exerciseAngina: row[8],
                 oldpeak: row[9],
                 stSlope: row[10],
-                predictionOutcome: row[11] === 1 ? 'High Risk' : 'Low Risk'
+                predictionOutcome: row[11] === 1 ? 'High Risk' : 'Low Risk',
+                remark: row[12],
             }));
     
             await axios.put(`/api/patients/update/patients/${recordId}`, {
@@ -168,7 +172,8 @@ function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved
             'Exercise Angina': row[8],
             Oldpeak: row[9],
             'ST Slope': row[10],
-            Prediction: row[11] === 1 ? 'High Risk' : 'Low Risk'
+            Prediction: row[11] === 1 ? 'High Risk' : 'Low Risk',
+            Remark: row[12],
         })));
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Results');
@@ -251,6 +256,7 @@ function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved
                                 <th>Oldpeak</th>
                                 <th>ST Slope</th>
                                 <th>Prediction</th>
+                                <th>Remark</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -269,6 +275,7 @@ function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved
                                     <td>{result[9]}</td>
                                     <td>{result[10]}</td>
                                     <td>{result[11] === 1 ? 'High Risk' : 'Low Risk'}</td>
+                                    <td>{result[12]}</td>
                                     <td>
                                         <Button variant="warning" onClick={() => handleEditPrediction(index)}>
                                             Edit
@@ -297,6 +304,12 @@ function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved
                             <option value="High Risk">High Risk</option>
                             <option value="Low Risk">Low Risk</option>
                         </Form.Control>
+                        <Form.Label>Remark</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder='Enter a remark about the result'
+                            onChange={(e) => setRemark(e.target.value)}
+                        />
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>

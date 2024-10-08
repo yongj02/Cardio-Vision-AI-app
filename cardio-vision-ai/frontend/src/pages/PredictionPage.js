@@ -80,6 +80,9 @@ const PredictionPage = () => {
 
             // Add a value of 1 to each patient, assuming they have cardiovascular disease
             const modifiedPatients = response.data.predictedPatients.map(predictedPatient => Object.values(predictedPatient));
+            modifiedPatients.forEach(patientInfo => {
+                patientInfo.push("");
+            })
             setProgress(100); // Progress complete
             setSelectedModel(""); // Reset selected model
 
