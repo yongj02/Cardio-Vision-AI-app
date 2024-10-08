@@ -35,3 +35,7 @@
 .custom-accordion-header:hover {
     background-color: #5a6268; /* Darker gray on hover */
 }
+
+.card-body-scroll {
+    overflow-y: auto;
+}

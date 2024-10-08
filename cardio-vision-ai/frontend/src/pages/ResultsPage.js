@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import PredictionResults from '../components/PredictionResults'; 
 import PredictionCharts from '../components/PredictionCharts';
+import Card from 'react-bootstrap/Card';
+import '../styles/styles.css';
 
 function ResultsPage() {
     const [openCharts, setOpenCharts] = useState(true);
@@ -46,21 +48,29 @@ function ResultsPage() {
     }, [isSaved, results]);
 
     return (
-        <div className="container">
-            <h2>Prediction Results</h2>
-            <PredictionResults
-                results={results}
-                updatedResults={updatedResults}
-                setUpdatedResults={setUpdatedResults}
-                isSaved={isSaved}
-            />
-
-            <PredictionCharts
-                updatedResults={updatedResults}
-                openCharts={openCharts}
-                setOpenCharts={setOpenCharts}
-            />
+        <div className="container mt-4">
+            <div className="row justify-content-center">
+                <div>
+                    <Card>
+                        <Card.Header as="h2">Prediction Results</Card.Header>
+                        <Card.Body className="card-body-scroll">
+                            <PredictionResults
+                                results={results}
+                                updatedResults={updatedResults}
+                                setUpdatedResults={setUpdatedResults}
+                                isSaved={isSaved}
+                            />
+                            <PredictionCharts
+                                updatedResults={updatedResults}
+                                openCharts={openCharts}
+                                setOpenCharts={setOpenCharts}
+                            />
+                        </Card.Body>
+                    </Card>
+                </div>
+            </div>
         </div>
+
     );
 }
 
