@@ -5,7 +5,6 @@ const makePrediction = async (req, res) => {
   try {
     // Load the model once instead of inside the loop
     const modelType = req.body.modelType.toLowerCase();
-    console.log(modelType);
     const model = await loadModel(modelType);
     let predictedPatients = [];
 
