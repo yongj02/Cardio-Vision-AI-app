@@ -1,0 +1,11 @@
+Base features: 20
+GA(11): ['RestingBP', 'Cholesterol', 'FastingBS', 'MaxHR', 'ChestPainType_ASY', 'ChestPainType_ATA', 'ChestPainType_NAP', 'RestingECG_Normal', 'RestingECG_ST', 'ExerciseAngina_Y', 'ST_Slope_Flat', 'HeartDisease']
+RF(4): ['ST_Slope_Up', 'Oldpeak', 'ST_Slope_Flat', 'Cholesterol', 'HeartDisease']
+RFE(4): ['Cholesterol', 'MaxHR', 'Oldpeak', 'ST_Slope_Up', 'HeartDisease']
+RFECV(16): ['Age', 'RestingBP', 'Cholesterol', 'FastingBS', 'MaxHR', 'Oldpeak', 'Sex_F', 'Sex_M', 'ChestPainType_ASY', 'ChestPainType_ATA', 'ChestPainType_NAP', 'RestingECG_LVH', 'ExerciseAngina_N', 'ExerciseAngina_Y', 'ST_Slope_Flat', 'ST_Slope_Up', 'HeartDisease']
+GWO(10): ['RestingBP', 'Cholesterol', 'FastingBS', 'MaxHR', 'Sex_F', 'ChestPainType_ASY', 'ChestPainType_ATA', 'RestingECG_LVH', 'RestingECG_ST', 'ST_Slope_Up', 'HeartDisease']
+WOA(13): ['Age', 'RestingBP', 'Cholesterol', 'FastingBS', 'MaxHR', 'Sex_M', 'ChestPainType_ASY', 'ChestPainType_TA', 'RestingECG_LVH', 'RestingECG_Normal', 'RestingECG_ST', 'ST_Slope_Down', 'ST_Slope_Up', 'HeartDisease']
+HHO(4): ['FastingBS', 'MaxHR', 'ChestPainType_ASY', 'ST_Slope_Flat', 'HeartDisease']
+FA(8): ['RestingBP', 'FastingBS', 'MaxHR', 'ChestPainType_ASY', 'ChestPainType_NAP', 'RestingECG_LVH', 'ST_Slope_Down', 'ST_Slope_Up', 'HeartDisease']
+CS(7): ['FastingBS', 'Oldpeak', 'Sex_F', 'ChestPainType_ASY', 'ChestPainType_NAP', 'RestingECG_LVH', 'ST_Slope_Flat', 'HeartDisease']
+BA(7): ['FastingBS', 'Oldpeak', 'Sex_F', 'ChestPainType_ASY', 'ChestPainType_NAP', 'RestingECG_LVH', 'ST_Slope_Flat', 'HeartDisease']

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Collapse, Alert, Spinner, ProgressBar, Table, Modal } from 'react-bootstrap';
+import { Button, Collapse, Alert, Spinner, ProgressBar, Table, Modal, DropdownButton, Dropdown } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DatabaseSelector from '../components/DatasetSelector';
@@ -16,6 +16,7 @@ const PredictionPage = () => {
     const [progress, setProgress] = useState(0);
     const [error, setError] = useState('');
     const [patients, setPatients] = useState([]);
+    const [selectedModel, setSelectedModel] = useState("");
     const [showPatients, setShowPatients] = useState(true);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
@@ -43,13 +44,23 @@ const PredictionPage = () => {
         }
     };
 
+    const handleSelectModel = (e) => {
+        setSelectedModel(e);
+    }
+
     const handlePredict = async () => {
+        if (!selectedModel) {
+            alert("Please select a model first!"); // Show pop-up if no model is selected
+            return; // Stop execution if no model is selected
+        }
+
         setLoading(true);
         setProgress(50); // Assume halfway progress when the model starts
 
         try {
             // Commenting out the API call
             const response = await axios.post('/api/predict', {
+                modelType: selectedModel,
                 patients: patients.map((patient) => {
                     return {
                         age: patient[0],
@@ -70,6 +81,7 @@ const PredictionPage = () => {
             // Add a value of 1 to each patient, assuming they have cardiovascular disease
             const modifiedPatients = response.data.predictedPatients.map(predictedPatient => Object.values(predictedPatient));
             setProgress(100); // Progress complete
+            setSelectedModel(""); // Reset selected model
 
             // Navigate to the results page with the modified patients data
             navigate('/results', { state: { results: modifiedPatients } });
@@ -332,6 +344,18 @@ const PredictionPage = () => {
                             )}
                         </div>
                     </Collapse>
+
+                    <DropdownButton
+                        id="dropdown-basic-button"
+                        title={selectedModel ? selectedModel : "Please select a model"}
+                        onSelect={handleSelectModel}
+                        className="mb-2"e
+                    >
+                        <Dropdown.Item eventKey="GA-Ensemble">GA-Ensemble</Dropdown.Item>
+                        <Dropdown.Item eventKey="GWO-Ensemble">GWO-Ensemble</Dropdown.Item>
+                        <Dropdown.Item eventKey="WOA-Ensemble">WOA-Ensemble</Dropdown.Item>
+                        <Dropdown.Item eventKey="CS-Ensemble">CS-Ensemble</Dropdown.Item>
+                    </DropdownButton>
 
                     <Button variant="success" className="w-100 mb-2 mt-3" onClick={handlePredict}>
                         Predict

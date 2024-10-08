@@ -1,7 +1,7 @@
 const tf = require('@tensorflow/tfjs-node');
 
 // Preprocessing function
-function preprocessInput(data) {
+function preprocessInput(data, modelType=null) {
   // Normalise numerical values
   const minAge = 29;
   const maxAge = 77;
@@ -44,30 +44,39 @@ function preprocessInput(data) {
   };
 
   // Combine normalised and encoded data into a single input tensor
-  return tf.tensor2d([
-    [
-      age,
-      restingBP,
-      cholesterol,
-      fastingBS,
-      maxHR,
-      oldpeak,
-      encodedData.sex_M,
-      encodedData.sex_F,
-      encodedData.chestPainType_ATA,
-      encodedData.chestPainType_NAP,
-      encodedData.chestPainType_ASY,
-      encodedData.chestPainType_TA,
-      encodedData.restingECG_Normal,
-      encodedData.restingECG_ST,
-      encodedData.restingECG_LVH,
-      encodedData.exerciseAngina_N,
-      encodedData.exerciseAngina_Y,
-      encodedData.stSlope_Up,
-      encodedData.stSlope_Flat,
-      encodedData.stSlope_Down,
-    ],
-  ]);
+  switch(modelType){
+    case "ga-ensemble":
+      return tf.tensor3d([
+          restingBP, cholesterol, fastingBS, maxHR, encodedData.chestPainType_ASY, encodedData.chestPainType_ATA, encodedData.chestPainType_NAP,
+          encodedData.restingECG_Normal, encodedData.restingECG_ST, encodedData.exerciseAngina_Y, encodedData.stSlope_Flat,
+      ], [1, 11, 1]);
+    
+    case "gwo-ensemble":
+      return tf.tensor3d([
+          restingBP, cholesterol, fastingBS, maxHR, encodedData.sex_F, encodedData.chestPainType_ASY, encodedData.chestPainType_ATA,
+          encodedData.restingECG_LVH, encodedData.restingECG_ST, encodedData.stSlope_Up,
+      ], [1, 10, 1]);
+
+    case "woa-ensemble":
+      return tf.tensor3d([
+        age, restingBP, cholesterol, fastingBS, maxHR, encodedData.sex_M, encodedData.chestPainType_ASY, encodedData.chestPainType_TA,
+        encodedData.restingECG_LVH, encodedData.restingECG_Normal, encodedData.restingECG_ST, encodedData.stSlope_Down, encodedData.stSlope_Up,
+      ], [1, 13, 1]);
+
+    case "cs-ensemble":
+      return tf.tensor3d([
+        fastingBS, oldpeak, encodedData.sex_F, encodedData.chestPainType_ASY, encodedData.chestPainType_NAP,
+        encodedData.restingECG_LVH, encodedData.stSlope_Flat,
+      ], [1, 7, 1]);
+
+    default:
+      return tf.tensor3d([
+        age, restingBP, cholesterol, fastingBS, maxHR, oldpeak, encodedData.sex_M, encodedData.sex_F, encodedData.chestPainType_ATA,
+        encodedData.chestPainType_NAP, encodedData.chestPainType_ASY, encodedData.chestPainType_TA, encodedData.restingECG_Normal,
+        encodedData.restingECG_ST, encodedData.restingECG_LVH, encodedData.exerciseAngina_N, encodedData.exerciseAngina_Y,
+        encodedData.stSlope_Up, encodedData.stSlope_Flat, encodedData.stSlope_Down,
+    ], [1, 20, 1]);
+  }
 }
 
 module.exports = preprocessInput;
