@@ -1,0 +1,12 @@
+[projects]
+default = "your-project-id"  # Replace with your actual project ID
+
+[services.backend]
+path = "backend"
+build = "npm install"
+start = "npm start"
+
+[services.frontend]
+path = "frontend"
+build = "npm install"
+start = "npm start"
