@@ -145,6 +145,7 @@ const DatasetUploadPage = () => {
 
         try {
             const response = await axios.post('/api/datasets/upload', formData, {
+                withCredentials: true,
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

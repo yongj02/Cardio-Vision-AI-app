@@ -85,6 +85,7 @@ function PredictionResults({ results, updatedResults, setUpdatedResults, isSaved
                 name: recordName,
                 patientInfos: patientInfos
             }, {
+                withCredentials: true,
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'

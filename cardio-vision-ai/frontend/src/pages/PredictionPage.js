@@ -76,7 +76,7 @@ const PredictionPage = () => {
                         stSlope: patient[10],
                     }
                 }), // Pass patients data to backend
-            });
+            }, { withCredentials: true });
 
             // Add a value of 1 to each patient, assuming they have cardiovascular disease
             const modifiedPatients = response.data.predictedPatients.map(predictedPatient => Object.values(predictedPatient));
