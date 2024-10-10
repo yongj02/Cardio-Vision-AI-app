@@ -12,6 +12,7 @@ connectDB();
 
 const app = express();
 
+/*
 // CORS configuration
 const corsOptions = {
   origin: 'https://fit4701-4702-fyp-production.up.railway.app', // Allow requests from this origin
@@ -20,6 +21,22 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions)); 
+*/
+
+// Using custom CORS configuration
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', 'https://fit4701-4702-fyp-production.up.railway.app');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, X-Api-Key');
+  res.header('Access-Control-Allow-Credentials', 'true');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
 app.use(express.json());
 
 app.use('/uploads', express.static('uploads')); 

@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            const response = await axios.post('/api/auth/login', { username, password });
+            const response = await axios.post('/api/auth/login', { username, password }, { withCredentials: true });
             const newToken = response.data.token;
             localStorage.setItem('token', newToken);
             setToken(newToken); // Update token in state
