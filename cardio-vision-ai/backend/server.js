@@ -28,7 +28,7 @@ app.use('/api/patients', patientRoutes);
 app.use('/api/datasets', datasetRoutes);
 app.use('/api/predict', predictRoutes);
 
-const PORT = parseInt(process.env.PORT || "8000", 10);
+const PORT = parseInt(process.env.PORT || "8080", 10);
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
