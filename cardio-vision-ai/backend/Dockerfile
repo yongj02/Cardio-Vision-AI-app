@@ -7,13 +7,13 @@ FROM node:19
 WORKDIR /backend
 
 # Copy the package.json and package-lock.json to the container
-COPY backend/package*.json ./
+COPY package*.json ./
 
 # Install dependencies
 RUN npm install
 
 # Copy the rest of the backend code to the container
-COPY backend/ ./
+COPY . .
 
 # Expose the port that the backend will listen on
 EXPOSE 8000
