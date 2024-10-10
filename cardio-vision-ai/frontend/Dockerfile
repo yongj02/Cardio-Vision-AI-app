@@ -7,7 +7,7 @@ FROM node:19 AS build
 WORKDIR /frontend
 
 # Copy the package.json and package-lock.json to the container
-COPY frontend/package*.json ./
+COPY package*.json ./
 
 # Install dependencies
 RUN npm install
