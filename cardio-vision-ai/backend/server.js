@@ -14,7 +14,7 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-  origin: 'https://fit4701-4702-fyp-production.up.railway.app', // Allow requests from this origin
+  origin: 'fit4701-4702-fyp-production.up.railway.app', // Allow requests from this origin
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed methods
   credentials: true, // Allow credentials (if needed)
 };
@@ -28,7 +28,7 @@ app.use('/api/patients', patientRoutes);
 app.use('/api/datasets', datasetRoutes);
 app.use('/api/predict', predictRoutes);
 
-const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
+const PORT = parseInt(process.env.PORT || "8000", 10);
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
