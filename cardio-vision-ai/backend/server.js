@@ -26,7 +26,7 @@ app.use(cors(corsOptions));
 // Using custom CORS configuration
 app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Origin', 'https://fit4701-4702-fyp-production.up.railway.app');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, X-Api-Key');
   res.header('Access-Control-Allow-Credentials', 'true');
 
