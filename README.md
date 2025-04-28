@@ -1,3 +1,5 @@
+### Personal Note: This repository is a fork of the origninal project developed during my time at Monash Univeristy. My contributions were made under my student GitHub account yche0323 (https://github.com/yche0323).
+
 # Cardio Vision AI
 
 Cardio Vision AI is a web application that utilizes a deep learning model for cardiovascular disease predictions.
